@@ -220,3 +220,15 @@ $(document).ready(function() {
 		rotator2.updateRotMtx();	
 	    rotator3.updateRotMtx();		
 	};
+	
+// When the user clicks their mouse on our canvas run this code
+function mouseAction(mouse) {
+    // Get current mouse coords
+    var rect = canvas.getBoundingClientRect();
+    var mouseXPos = (mouse.clientX - rect.left);
+    var mouseYPos = (mouse.clientY - rect.top);
+
+    // update html values
+    document.getElementById("azim-value").innerHTML = mouseXPos;
+
+}

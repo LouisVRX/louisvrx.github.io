@@ -41,3 +41,21 @@ table {
     text-align: center;
 }
 
+body{text-align: center;background: #f2f6f8;}
+.img{position:absolute;z-index:1;}
+
+#container{
+    display:inline-block;
+    width:964px; 
+    height:732px;
+    margin: 0 auto; 
+    background: white; 
+    position:relative; 
+    border:1px solid black; 
+    border-radius: 10px; 
+    box-shadow: 0 5px 50px #333}
+
+#Canvas{
+    position:relative;
+    z-index:20;
+}
