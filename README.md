@@ -1,2 +1,0 @@
-# louisvrx.github.io
-Ambisonics
