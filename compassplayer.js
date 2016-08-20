@@ -51,31 +51,6 @@ console.log(rotator3);
 var decoder = new webAudioAmbisonic.binDecoder(context, maxOrder);
 console.log(decoder);
 
-function mixer(audioCtx, source1, source2){
-//works also to connect everything to context.destination
-
-	if (source1.channelCount != source2.channelCount){
-		console.log("The 2 sources have different number of channels");
-		return (0);
-	}
-	
-	nbCh = source1.channelCount;
-	merger = audioCtx.createChannelMerger(nbCh);
-	
-	split1 = audioCtx.createChannelSplitter(nbCh);
-	split2 = audioCtx.createChannelSplitter(nbCh);
-	
-	source1.connect(split1);
-	source2.connect(split2);
-	
-	for (var ch=0 ; ch < nbCh ; ch++ ){
-		split1.connect(merger, ch, ch);
-		split2.connect(merger, ch, ch);		
-	}
-	return merger;	
-}
-
-
 // output gain
 var masterGain = context.createGain();
 var gain1 = context.createGain();
@@ -96,8 +71,6 @@ gain2.connect(decoder.in);
 rotator3.out.connect(gain3);
 gain3.connect(decoder.in);
 
-//mix = mixer(context, gain1, gain2);
-//mix.connect(decoder.in);
 decoder.out.connect(masterGain);
 masterGain.connect(context.destination);
 
@@ -230,5 +203,34 @@ function mouseAction(mouse) {
 
     // update html values
     document.getElementById("azim-value").innerHTML = mouseXPos;
-
+    document.getElementById("azim-value").innerHTML = mouseXPos;
 }
+
+Number.prototype.toRadians = function() {
+   return this * Math.PI / 180;
+}
+
+function calcDistance(lat1, lat2, lon1, lon2) {
+	var R = 6371e3;
+    var y1 = lat1.toRadians();
+    var y2 = lat2.toRadians();
+    var deltaLat = (lat2-lat1).toRadians();
+    var deltaLon = (lon2-lon1).toRadians();
+
+    var a = Math.sin(deltaLat/2) * Math.sin(deltaLat/2) +
+            Math.cos(y1) * Math.cos(y2) *
+            Math.sin(deltaLon/2) * Math.sin(deltaLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return(R * c) ;
+}
+
+function calcXY(coord1, coord2){
+	x = calcDistance(coord1[0], coord1[0], coord1[1], coord2[1]);
+	y = calcDistance(coord1[0], coord2[0], coord1[1], coord1[1]);
+	
+	if (coord1[1]-coord2[1] > 0 ) { x = -x ;}
+	if (coord1[0]-coord2[0] > 0) {y = -y ;}
+	return [x, y];
+}
+
