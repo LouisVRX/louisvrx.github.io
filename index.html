@@ -63,43 +63,36 @@
 			</tr>
 		</table>
 
-<p id="azim-value"> X </p>
-<p id="elev-value"> Y </p>
+<button onclick="setCenterLocation()">Set Canvas Center coordinates</button>
+<input type="button" onclick="stopWatch();" value="Stop"/>		
 
-<button onclick="getLocation()">Get GPS coordinates</button>
-
-<p id="demo"></p>
+<p id="warning"> </p>			
+<br/>		
+<p id="showdata"> </p>	
+<br/>		
+<p id="s1data"> </p>		
+<br/>
 
 
 <div id="container">
     <img class='img' src="Picture1.png" alt="" />
-    <canvas id="Canvas" width="964" height="732"></canvas>
+    <canvas id="Canvas" width="732" height="732"></canvas>
 </div>
 
+
+<p id="sourcePos"> </p>
+
+
 <script>
+
+
 
 //GUI
 var mouseDown = false;
 var orderValue = document.getElementById('order-value');
-var canvas = document.getElementById('Canvas');
-var canvas_context = canvas.getContext("2d");
+var soundChoice = document.getElementById('sound-choice');
 
 // Add mouse click event listener to canvas
-
-    canvas.addEventListener("mousedown", function(mouse) {
-        mouseDown = true;
-        mouseAction(mouse);
-    }, false);
-
-    canvas.addEventListener("mousemove", function(mouse) {
-        if (mouseDown) mouseAction(mouse);
-    }, false);
-
-    canvas.addEventListener("mouseup", function(mouse) {
-        mouseDown = false;
-    }, false);
-
-//Volume Sliderrss!   
 var volumeSlider = document.getElementById('volume-slider');
 volumeSlider.addEventListener('input', function(input) {
 masterGain.gain.value = volumeSlider.value;
@@ -117,23 +110,183 @@ gain3Slider.addEventListener('input', function(input) {
 gain3.gain.value = gain3Slider.value;
 });
 
-var x = document.getElementById("demo");
-function getLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
-    } else { 
-        x.innerHTML = "Geolocation is not supported by this browser.";
+
+//define playground
+var source1x= [10,-10]; // [x, y]en metres
+var source2x= [-15,15]; // [x, y]en metres
+
+//The origin is in the top-left corner, and increasing values go down rather than up
+
+
+//  Map scale - pixels per meter
+var PPM = 18; //366 pixels for around 20 m 
+
+
+
+//geolocalisation
+var k = document.getElementById("showdata");
+var kw = document.getElementById("warning");
+var ks1 = document.getElementById("s1data");
+
+var currentPosition= [0, 0];
+var centerPosition= [0, 0];
+	
+	
+	
+// define center of playground by clicking on button 
+var coords = {lat: "", lon: ""};
+function setCenterLocation() {
+    navigator.geolocation.getCurrentPosition(getPosition);
+    } 
+
+function getPosition(position) {
+	coords.lat = position.coords.latitude;
+    coords.lon = position.coords.longitude;
+	centerPosition= [coords.lat, coords.lon] ;
+	currentPosYX = calcPosition(currentPosition, centerPosition);
+	k.innerHTML= "current location:" + currentPosition +"   center location:" + centerPosition +"    current position for canvas:" +currentPosYX;
+	kw.innerHTML= "WARNING -it's ON -  Press Stop button to calibrate center";
+	f();
+	
+}	
+
+ function stopWatch(){
+    navigator.geolocation.clearWatch(watchID);
+	kw.innerHTML= "";
+         }
+
+// current GPS position 
+
+var options = {enableHighAccuracy: true,timeout: 5000,maximumAge: 0,desiredAccuracy: 0, frequency: 100};
+function f() {
+    // Update every 100 ms seconds
+    watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
     }
+    // onSuccess Geolocation
+function onSuccess(position) {
+	currentPosition= [position.coords.latitude, position.coords.longitude] ;
+	currentPosYX = calcPosition(currentPosition, centerPosition);
+     // Move the marker to current location
+    marker.XPos = Xposcentre+ Math.round(currentPosYX[1])*PPM;
+	marker.YPos = Yposcentre+ Math.round(currentPosYX[0])*PPM;
+// calcul distance current position- bord du coverage source
+	[x1,y1,x2,y2,s1d]= calcDistanceReceiverBordSource(currentPosYX[1],currentPosYX[0],source1x[0],source1x[1],6);
+//affiche les données	
+	k.innerHTML= "current location:" + currentPosition +"   center location:" + centerPosition +"    current position for canvas:" + currentPosYX;
+    ks1.innerHTML= "bord1:"+x1+"/"+y1+"  bord2:"+x2+"/"+y2+ "distance Source 1 border: "+ s1d;		
+	}	
+
+	
+  // onError Callback receives a PositionError object
+function onError(error) {
+    alert('code: '    + error.code    + '\n' +
+            'message: ' + error.message + '\n');
+    }
+		
+//window.onload = f;
+
+
+	
+	
+/* function showLocation(position) {
+	coords.lat = position.coords.latitude;
+    coords.lon = position.coords.longitude;
+	centrePosition= [coords.lat, coords.lon] ;
+centrePosition= [coords.lat, coords.lon] ;	
+k.innerHTML = "current location" + centrePosition;
+} */
+
+/* function errorHandler(err) {
+            if(err.code == 1) {
+               alert("Error: Access is denied!");
+            }
+            
+            else if( err.code == 2) {
+               alert("Error: Position is unavailable!");
+            }
+         }
+ */
+
+		 
+
+
+   
+  //currentPosition= calcPosition(coord1, coord2)
+
+
+
+////////////////////////////
+// SET-UP GUI AND USER INPUT
+var canvas = document.getElementById('Canvas');
+var canvas_context = canvas.getContext("2d");
+canvas_context.transform(1, 0, 0, -1, 0, canvas.height);
+
+var Xposcentre = 0 
+var Yposcentre = 0 ;
+
+// Map sprite
+var mapSprite = new Image();
+// mapSprite.src = "https://dl.dropboxusercontent.com/u/6300538/WebAmbi/map.png";
+mapSprite.src = "Picture1.png";
+// Create a basic class which will be used to create a marker
+var Marker = function () {
+    this.Sprite = new Image();
+    // this.Sprite.src = "https://dl.dropboxusercontent.com/u/6300538/WebAmbi/cursor.png"
+    this.Sprite.src = "images/cursor.png"
+    this.Width = 30;
+    this.Height = 30;
+    // marker to canvas center
+    this.XPos = (document.getElementById('Canvas').width / 2) - this.Width/2;
+    this.YPos = (document.getElementById('Canvas').height / 2) - this.Width/2;
+	Xposcentre = this.XPos;
+	Yposcentre = this.YPos;
 }
-function showPosition(position) {
-    x.innerHTML = "Latitude: " + position.coords.latitude + 
-    "<br>Longitude: " + position.coords.longitude;
+var marker = new Marker();
+
+var MarkerSource = function (sourcexy,sizeRatio) {
+    this.Sprite = new Image();
+    this.Sprite.src = "images/source.png"
+    this.Width = 60 *sizeRatio;
+    this.Height = 59*sizeRatio;
+    // marker 
+    this.XPos = Xposcentre+(sourcexy[0]*PPM);
+    this.YPos = Yposcentre+(sourcexy[1]*PPM);
 }
+var markerSource1 = new MarkerSource(source1x,1.5);
+var markerSource2 = new MarkerSource(source2x,2);
+var m = document.getElementById("sourcePos");
+
+
+
+function draw() {
+    requestAnimationFrame(draw);
+    // Clear Canvas
+    canvas_context.fillStyle = "#000";
+    canvas_context.fillRect(0, 0, canvas.width, canvas.height);
+    // Draw map
+    canvas_context.drawImage(mapSprite, 0, 0);
+    // Draw markers
+	// added - 
+	canvas_context.drawImage(markerSource1.Sprite, markerSource1.XPos, markerSource1.YPos, markerSource1.Width, markerSource1.Height);
+	canvas_context.drawImage(markerSource2.Sprite, markerSource2.XPos, markerSource2.YPos, markerSource2.Width, markerSource2.Height);
+	canvas_context.drawImage(marker.Sprite, marker.XPos, marker.YPos, marker.Width, marker.Height);
+    // run example specific draw callback
+    if (!(typeof(drawLocal)=='undefined')) { drawLocal();	}
+	m.innerHTML= "Source 1:  " + source1x +";    Source  2:   " + source2x ;  
+	
+   
+
+};
+draw();
+$.holdReady( false ); // to force awaiting on common.html loading
+
 
 
 </script>
 
 <script src="./compassplayer.js"></script>
+
+
 
 </body>
 </html>

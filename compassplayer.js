@@ -13,7 +13,7 @@ context.onstatechange = function() {
 
 var sound_1 = "sounds/clicks.wav";
 var sound_2 = "sounds/paper.wav";
-var sound_3 = "sounds/move.wav";
+var sound_3 = "sounds/attacks.wav";
 var irUrl_0 = "node_modules/web-audio-ambisonic/examples/IRs/HOA4_filters_virtual.wav";
 var irUrl_1 = "node_modules/web-audio-ambisonic/examples/IRs/HOA4_filters_direct.wav";
 var irUrl_2 = "node_modules/web-audio-ambisonic/examples/IRs/room-medium-1-furnished-src-20-Set1.wav";
@@ -73,7 +73,6 @@ gain3.connect(decoder.in);
 
 decoder.out.connect(masterGain);
 masterGain.connect(context.destination);
-
 
 
 // function to assign sample to the sound buffer for playback (and enable playbutton)
@@ -206,11 +205,13 @@ function mouseAction(mouse) {
     document.getElementById("azim-value").innerHTML = mouseXPos;
 }
 
+
+
 Number.prototype.toRadians = function() {
    return this * Math.PI / 180;
 }
 
-function calcDistance(lat1, lat2, lon1, lon2) {
+function calcDistanceGPS(lat1, lat2, lon1, lon2) {
 	var R = 6371e3;
     var y1 = lat1.toRadians();
     var y2 = lat2.toRadians();
@@ -225,12 +226,34 @@ function calcDistance(lat1, lat2, lon1, lon2) {
     return(R * c) ;
 }
 
-function calcXY(coord1, coord2){
-	x = calcDistance(coord1[0], coord1[0], coord1[1], coord2[1]);
-	y = calcDistance(coord1[0], coord2[0], coord1[1], coord1[1]);
+function calcPosition(coord1, coord2){
+	x = calcDistanceGPS(coord1[0], coord1[0], coord1[1], coord2[1]);
+	y = calcDistanceGPS(coord1[0], coord2[0], coord1[1], coord1[1]);
 	
 	if (coord1[1]-coord2[1] > 0 ) { x = -x ;}
-	if (coord1[0]-coord2[0] > 0) {y = -y ;}
-	return [x, y];
+	if (coord2[0]-coord1[0] > 0) {y = -y ;}
+
+	return [y,x]; // latitude, longitude
+}
+function calcDistanceReceiverBordSource(recx,recy,sx,sy,rayon) {
+	//coordonnées de l'intersection entre ligne "source receiver" et coverage circle de source
+	// y=mx+c
+	// données en mètres
+    m= (recy-sy)/(recx-sx);
+	c=sy-(m*sx);
+	A= ((m*m)+1);
+	B=2*((m*c)-(m*sy)-sx);
+	C=((sy*sy)-(rayon*rayon)+(sx*sx)-(2*(c*sy))+(c*c));
+	
+	x1=((-B)+Math.sqrt((B*B)-(4*A*C)))/(2*A);
+	x2=((-B)-Math.sqrt((B*B)-(4*A*C)))/(2*A);
+	y1=(m*x1)+c;
+	y2=(m*x2)+c;
+	
+	//check which of the 2 intersection points is the closer to the receiver
+	d1= Math.abs(Math.sqrt(((recx-x1)*(recx-x1))+((recy-y1)*(recy-y1))));
+	d2= Math.abs(Math.sqrt(((recx-x2)*(recx-x2))+((recy-y2)*(recy-y2))));
+	d= Math.min(d1, d2);
+return [x1,y1,x2,y2,d];
 }
 
