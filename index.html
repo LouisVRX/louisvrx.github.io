@@ -34,17 +34,17 @@
 	
 	<div id='div-volume1'>
 		<label for="gain1">Gain 1</label> &nbsp;
-		<input id="gain1-slider" type="range" min="0" max="1" value="1" step="1" />
+		<input id="gain1-slider" type="range" min="0" max="1" value="1" step="0.1" />
 	</div>
 	
 	<div id='div-volume2'>
 		<label for="gain2">Gain 2</label> &nbsp;
-		<input id="gain2-slider" type="range" min="0" max="1" value="1" step="1" />
+		<input id="gain2-slider" type="range" min="0" max="1" value="1" step="0.1" />
 	</div>
 	
 	<div id='div-volume3'>
 		<label for="gain3">Gain 3</label> &nbsp;
-		<input id="gain3-slider" type="range" min="0" max="1" value="1" step="1" />
+		<input id="gain3-slider" type="range" min="0" max="1" value="0" step="0.1" />
 	</div>
 		
 	
@@ -75,7 +75,7 @@
 
 
 <div id="container">
-    <img class='img' src="Picture1.png" alt="" />
+    <!-- <img class='img' src="Picture1.png" alt="" /> -->
     <canvas id="Canvas" width="732" height="732"></canvas>
 </div>
 
@@ -112,8 +112,13 @@ gain3.gain.value = gain3Slider.value;
 
 
 //define playground
-var source1x= [10,-10]; // [x, y]en metres
-var source2x= [-15,15]; // [x, y]en metres
+var source1x = [10,-10]; // [x, y]en metres
+var source2x = [-15,15]; // [x, y]en metres
+
+var s1pD = new Array(5); //[x1,y1,x2,y2,s1d] 
+var s2pD = new Array(5); 
+
+var r_source = 6 ;
 
 //The origin is in the top-left corner, and increasing values go down rather than up
 
@@ -130,6 +135,7 @@ var ks1 = document.getElementById("s1data");
 
 var currentPosition= [0, 0];
 var centerPosition= [0, 0];
+var currentPosYX = [0, 0];
 	
 	
 	
@@ -162,7 +168,8 @@ function f() {
     // Update every 100 ms seconds
     watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
     }
-    // onSuccess Geolocation
+    
+// onSuccess Geolocation
 function onSuccess(position) {
 	currentPosition= [position.coords.latitude, position.coords.longitude] ;
 	currentPosYX = calcPosition(currentPosition, centerPosition);
@@ -170,10 +177,16 @@ function onSuccess(position) {
     marker.XPos = Xposcentre+ Math.round(currentPosYX[1])*PPM;
 	marker.YPos = Yposcentre+ Math.round(currentPosYX[0])*PPM;
 // calcul distance current position- bord du coverage source
-	[x1,y1,x2,y2,s1d]= calcDistanceReceiverBordSource(currentPosYX[1],currentPosYX[0],source1x[0],source1x[1],6);
+	s1pD = calcDistanceReceiverBordSource(currentPosYX[1],currentPosYX[0],source1x[0],source1x[1],r_source);
+	s2pD = calcDistanceReceiverBordSource(currentPosYX[1],currentPosYX[0],source2x[0],source2x[1],r_source);
+// changement des gains
+	gain1.gain.value = gainD(s1pD[4]);
+	gain2.gain.value = gainD(s2pD[4]);
+	console.log(gain1.gain.value, gain2.gain.value);
+	
 //affiche les données	
-	k.innerHTML= "current location:" + currentPosition +"   center location:" + centerPosition +"    current position for canvas:" + currentPosYX;
-    ks1.innerHTML= "bord1:"+x1+"/"+y1+"  bord2:"+x2+"/"+y2+ "distance Source 1 border: "+ s1d;		
+	k.innerHTML= "current location: " + currentPosition +"   center location: " + centerPosition +"    current position for canvas: " + currentPosYX;
+    ks1.innerHTML= "bord1: " + s1pD[0] + "/" + s1pD[1] + "  bord2: " + s1pD[2] + "/" + s1pD[3] + " distance Source 1 border: " + s1pD[4];		
 	}	
 
 	
@@ -226,8 +239,6 @@ var Yposcentre = 0 ;
 
 // Map sprite
 var mapSprite = new Image();
-// mapSprite.src = "https://dl.dropboxusercontent.com/u/6300538/WebAmbi/map.png";
-mapSprite.src = "Picture1.png";
 // Create a basic class which will be used to create a marker
 var Marker = function () {
     this.Sprite = new Image();
@@ -273,9 +284,6 @@ function draw() {
     // run example specific draw callback
     if (!(typeof(drawLocal)=='undefined')) { drawLocal();	}
 	m.innerHTML= "Source 1:  " + source1x +";    Source  2:   " + source2x ;  
-	
-   
-
 };
 draw();
 $.holdReady( false ); // to force awaiting on common.html loading

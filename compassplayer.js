@@ -14,15 +14,19 @@ context.onstatechange = function() {
 var sound_1 = "sounds/clicks.wav";
 var sound_2 = "sounds/paper.wav";
 var sound_3 = "sounds/attacks.wav";
+
+var mono_1 = "sounds/clicks_mono.wav"
+var mono_2 = "sounds/paper_mono.wav"
+var mono_3 = "sounds/attacks_mono.wav"
+
 var irUrl_0 = "node_modules/web-audio-ambisonic/examples/IRs/HOA4_filters_virtual.wav";
 var irUrl_1 = "node_modules/web-audio-ambisonic/examples/IRs/HOA4_filters_direct.wav";
 var irUrl_2 = "node_modules/web-audio-ambisonic/examples/IRs/room-medium-1-furnished-src-20-Set1.wav";
 
 var maxOrder = 3;
 var orderOut = 3;
-var soundBuffer, sound;
-var soundBuffer2, soundBuffer3;
-var alpha2;
+var soundBuffer, soundBuffer2, soundBuffer3, monoBuffer, monoBuffer2, monoBuffer3, sound;
+var alpha2, alpha3;
 
 // define HOA order limiter (to show the effect of order)
 var limiter = new webAudioAmbisonic.orderLimiter(context, maxOrder, orderOut);
@@ -33,6 +37,14 @@ console.log(limiter2);
 
 var limiter3 = new webAudioAmbisonic.orderLimiter(context, maxOrder, orderOut);
 console.log(limiter3);
+
+//Mono encoders
+var encoder = new webAudioAmbisonic.monoEncoder(context, maxOrder);
+console.log(encoder);
+var encoder2 = new webAudioAmbisonic.monoEncoder(context, maxOrder);
+console.log(encoder2);
+var encoder3 = new webAudioAmbisonic.monoEncoder(context, maxOrder);
+console.log(encoder3);
 
 // define HOA rotator
 var rotator = new webAudioAmbisonic.sceneRotator(context, maxOrder);
@@ -58,6 +70,10 @@ var gain2 = context.createGain();
 var gain3 = context.createGain();
 
 // connect HOA blocks
+encoder.out.connect(limiter.in);
+encoder2.out.connect(limiter2.in);
+encoder3.out.connect(limiter3.in);
+
 limiter.out.connect(rotator.in);
 limiter2.out.connect(rotator2.in);
 limiter3.out.connect(rotator3.in);
@@ -77,22 +93,33 @@ masterGain.connect(context.destination);
 
 // function to assign sample to the sound buffer for playback (and enable playbutton)
 var assignSample2SoundBuffer = function(decodedBuffer) {
-    soundBuffer = decodedBuffer;
+    monoBuffer = decodedBuffer;
     document.getElementById('play').disabled = false;
 }
+var assignSample2SoundBuffer2 = function(decodedBuffer) { monoBuffer2 = decodedBuffer;}
+var assignSample2SoundBuffer3 = function(decodedBuffer) { monoBuffer3 = decodedBuffer;}
+
+// function to load samples
+function loadSample(url, doAfterLoading) {
+    var fetchSound = new XMLHttpRequest(); // Load the Sound with XMLHttpRequest
+    fetchSound.open("GET", url, true); // Path to Audio File
+    fetchSound.responseType = "arraybuffer"; // Read as Binary Data
+    fetchSound.onload = function() {
+        context.decodeAudioData(fetchSound.response, doAfterLoading);
+    }
+    fetchSound.send();
+}
+loadSample(mono_1, assignSample2SoundBuffer);
+loadSample(mono_2, assignSample2SoundBuffer2);
+loadSample(mono_3, assignSample2SoundBuffer3);
 
 // load samples and assign to buffers
 var assignSoundBufferOnLoad = function(buffer) {
     soundBuffer = buffer;
     document.getElementById('play').disabled = false;
 }
-var assignSoundBufferOnLoad2 = function(buffer) {
-    soundBuffer2 = buffer;
-   }
-var assignSoundBufferOnLoad3 = function(buffer) {
-    soundBuffer3 = buffer;
-   }
-
+var assignSoundBufferOnLoad2 = function(buffer) { soundBuffer2 = buffer;}
+var assignSoundBufferOnLoad3 = function(buffer) { soundBuffer3 = buffer;}
 
 var loader_sound_1 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_1,assignSoundBufferOnLoad);
 loader_sound_1.load();
@@ -120,25 +147,39 @@ for (var i = 0 ; i < 360 ; i++) {
 $(document).ready(function() {
    // Init event listeners
     document.getElementById('play').addEventListener('click', function() {
-        sound = context.createBufferSource();
-        sound.buffer = soundBuffer;
-        sound.loop = true;
-        sound.connect(limiter.in);
-        sound.start(0);
         
+        // if (source1.enable) {
+        sound = context.createBufferSource();
+        //sound.buffer = soundBuffer;
+        sound.buffer = monoBuffer;
+        sound.loop = true;
+        //sound.connect(limiter.in);
+        sound.connect(encoder.in);
+        sound.start(0);
+        //}
+        
+        //if (source2.enable) {
         sound2 = context.createBufferSource();
-        sound2.buffer = soundBuffer2;
+        //sound2.buffer = soundBuffer2;
+        sound2.buffer = monoBuffer2;
         sound2.loop = true;
-        sound2.connect(limiter2.in);
+        //sound2.connect(limiter2.in);
+        sound2.connect(encoder2.in);
         sound2.start(0);
         sound2.isPlaying = true;
+        //}
         
+        //if (source3.enable) {
         sound3 = context.createBufferSource();
-        sound3.buffer = soundBuffer3;
+        //sound3.buffer = soundBuffer3;
+        sound3.buffer = monoBuffer3;
         sound3.loop = true;
-        sound3.connect(limiter3.in);
+        //sound3.connect(limiter3.in);
+        sound3.connect(encoder3.in);
         sound3.start(0);
         sound3.isPlaying = true;
+        //}
+              
         
         document.getElementById('play').disabled = true;
         document.getElementById('stop').disabled = false;
@@ -146,7 +187,9 @@ $(document).ready(function() {
     document.getElementById('stop').addEventListener('click', function() {
         sound.stop(0);
         sound2.stop(0);
-        sound3.stop(0)
+        sound3.stop(0);
+       
+       
         sound.isPlaying = false;
         document.getElementById('play').disabled = false;
         document.getElementById('stop').disabled = true;
@@ -181,16 +224,15 @@ $(document).ready(function() {
 	}),false;
 
 	var updateRotator = function(alpha, beta) {
-		rotator.yaw = lookup[alpha];
-		alpha2 = ((alpha+110) % 360);
-		rotator2.yaw = lookup[alpha2];
-		alpha3 = ((alpha+220) % 360);
-		rotator3.yaw = lookup[alpha3];		
+		rotator.yaw = angleSourcePosition(alpha, currentPosYX, source1x);
+		rotator2.yaw = angleSourcePosition(alpha, currentPosYX, source2x);
+		//rotator3.yaw = lookup[alpha3];		
 		document.getElementById("YAW").innerHTML = rotator.yaw;
-		rotator.beta = beta;
+		
+		rotator.pitch = beta;
 		rotator.updateRotMtx();
 		rotator2.updateRotMtx();	
-	    rotator3.updateRotMtx();		
+	    //rotator3.updateRotMtx();		
 	};
 	
 // When the user clicks their mouse on our canvas run this code
@@ -257,3 +299,45 @@ function calcDistanceReceiverBordSource(recx,recy,sx,sy,rayon) {
 return [x1,y1,x2,y2,d];
 }
 
+function gainD(distance){
+	if (distance < 30){ return ((30-distance)/30);}
+	else return(0);
+}
+
+function angleSourcePosition(alpha, posYX, src){
+	
+	var pos = new Array(2);
+	pos[0] = posYX[1];
+	pos[1] = posYX[0];
+	
+	// Exceptions 0 90 180 270
+	if (pos[0] == src[0] && pos[1] < src[1]){
+		// source facing
+		return(lookup[alpha]);
+	}
+	if (pos[0] == src[0] && pos[1] > src[1]){
+		// source in the back
+		return(180-alpha);
+	}
+	if (pos[1] == src[1] && pos[0] < src[0]){
+		// source on the right
+		if (alpha > 90) { return(270-alpha);}
+		else { return lookup[270 - alpha];}
+	}
+	if (pos[1] == src[1] && pos[0] > src[0]){
+		// source on the left
+		if (alpha < 270) {return(90-alpha);}
+		else { return (90 - lookup[alpha]);}
+	}
+	
+	var alphaSource = Math.acos(Math.abs(src[1]-pos[1])/Math.sqrt((src[0]-pos[0])*(src[0]-pos[0])+(src[1]-pos[1])*(src[1]-pos[1])));
+	
+	if (src[0] < 0){
+		if (src[1] < 0){alphaSource = 180-alphaSource ;}
+	} else {
+		if (src[1] < 0){alphaSource = alphaSource-180 ;}
+		else { alphaSource = - alphaSource ; }
+	}	
+	
+	return (alphaSource-alpha);
+}
