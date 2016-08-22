@@ -96,8 +96,8 @@ var assignSample2SoundBuffer = function(decodedBuffer) {
     monoBuffer = decodedBuffer;
     document.getElementById('play').disabled = false;
 }
-var assignSample2SoundBuffer2 = function(decodedBuffer) { monoBuffer2 = decodedBuffer;}
-var assignSample2SoundBuffer3 = function(decodedBuffer) { monoBuffer3 = decodedBuffer;}
+var assignSample2SoundBuffer2 = function(decodedBuffer) { monoBuffer2 = decodedBuffer;document.getElementById('play').disabled = false}
+var assignSample2SoundBuffer3 = function(decodedBuffer) { monoBuffer3 = decodedBuffer;document.getElementById('play').disabled = false}
 
 // function to load samples
 function loadSample(url, doAfterLoading) {
@@ -118,15 +118,15 @@ var assignSoundBufferOnLoad = function(buffer) {
     soundBuffer = buffer;
     document.getElementById('play').disabled = false;
 }
-var assignSoundBufferOnLoad2 = function(buffer) { soundBuffer2 = buffer;}
-var assignSoundBufferOnLoad3 = function(buffer) { soundBuffer3 = buffer;}
+var assignSoundBufferOnLoad2 = function(buffer) { soundBuffer2 = buffer;document.getElementById('play').disabled = false}
+var assignSoundBufferOnLoad3 = function(buffer) { soundBuffer3 = buffer;document.getElementById('play').disabled = false}
 
 var loader_sound_1 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_1,assignSoundBufferOnLoad);
 loader_sound_1.load();
 var loader_sound_2 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_2, assignSoundBufferOnLoad2);
 loader_sound_2.load();
-var loader_sound_3 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_3, assignSoundBufferOnLoad3);
-loader_sound_3.load();
+//var loader_sound_3 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_3, assignSoundBufferOnLoad3);
+//loader_sound_3.load();
 
 // load filters and assign to buffers
 var assignFiltersOnLoad = function(buffer) {
@@ -202,12 +202,14 @@ $(document).ready(function() {
         mono.stop(0);
         sound2.stop(0);
         mono2.stop(0);
+        //mono3.stop(0);
         //sound3.stop(0);
        
         sound.isPlaying = false;
         mono.isPlaying = false;
         sound2.isPlaying = false;
         mono2.isPlaying = false;
+        //mono3.isPlaying = false;
         //sound3.isPlaying = false;
         
         document.getElementById('play').disabled = false;
