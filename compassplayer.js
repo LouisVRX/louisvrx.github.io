@@ -12,11 +12,11 @@ context.onstatechange = function() {
 }
 
 var sound_1 = "sounds/clicks.wav";
-var sound_2 = "sounds/attacks.wav";
+var sound_2 = "sounds/paper.wav";
 var sound_3 = "sounds/attacks.wav";
 
 var mono_1 = "sounds/clicks_mono.wav"
-var mono_2 = "sounds/attacks_mono.wav"
+var mono_2 = "sounds/paper_mono.wav"
 var mono_3 = "sounds/attacks_mono.wav"
 
 var irUrl_0 = "node_modules/web-audio-ambisonic/examples/IRs/HOA4_filters_virtual.wav";
@@ -199,11 +199,15 @@ $(document).ready(function() {
     });
     document.getElementById('stop').addEventListener('click', function() {
         sound.stop(0);
+        mono.stop(0);
         sound2.stop(0);
+        mono2.stop(0);
         //sound3.stop(0);
        
         sound.isPlaying = false;
+        mono.isPlaying = false;
         sound2.isPlaying = false;
+        mono2.isPlaying = false;
         //sound3.isPlaying = false;
         
         document.getElementById('play').disabled = false;
