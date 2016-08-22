@@ -146,51 +146,64 @@ for (var i = 0 ; i < 360 ; i++) {
 
 $(document).ready(function() {
    // Init event listeners
-    document.getElementById('play').addEventListener('click', function() {
-        
-        // if (source1.enable) {
+    document.getElementById('play').addEventListener('click', play);
+    function play() {
+        console.log('plaaay!!')
         sound = context.createBufferSource();
-        //sound.buffer = soundBuffer;
-        sound.buffer = monoBuffer;
+        mono = context.createBufferSource();
+        //if (source1_ambisonics) {
+        	sound.buffer = soundBuffer;
+        //	sound.connect(limiter.in);
+       	//}
+        //else { 
+        	mono.buffer = monoBuffer;
+        	mono.connect(encoder.in);
+        //	}
         sound.loop = true;
-        //sound.connect(limiter.in);
-        sound.connect(encoder.in);
         sound.start(0);
-        //}
+        sound.isPlaying = true;
+        mono.loop = true;
+        mono.start(0);
+        mono.isPlaying = true;
         
-        //if (source2.enable) {
         sound2 = context.createBufferSource();
-        //sound2.buffer = soundBuffer2;
-        sound2.buffer = monoBuffer2;
-        sound2.loop = true;
-        //sound2.connect(limiter2.in);
-        sound2.connect(encoder2.in);
+         if (source2_ambisonics) {
+         	sound2.buffer = soundBuffer2;
+         	sound2.connect(limiter2.in);}
+         else {
+         	sound2.buffer = monoBuffer2;
+         	sound2.connect(encoder2.in);
+         }
+        sound2.loop = true;        
         sound2.start(0);
         sound2.isPlaying = true;
-        //}
-        
-        //if (source3.enable) {
-        sound3 = context.createBufferSource();
-        //sound3.buffer = soundBuffer3;
-        sound3.buffer = monoBuffer3;
-        sound3.loop = true;
-        //sound3.connect(limiter3.in);
-        sound3.connect(encoder3.in);
+
+        /*sound3 = context.createBufferSource();
+        if (source3.ambisonics) {
+        	sound3.buffer = soundBuffer3;
+        	sound3.connect(limiter3.in);}
+        else {
+        	sound3.buffer = monoBuffer3;
+        	sound3.connect(encoder3.in);
+        } 
+  
+        sound3.loop = true;   
         sound3.start(0);
-        sound3.isPlaying = true;
-        //}
+        sound3.isPlaying = true;*/
               
         
         document.getElementById('play').disabled = true;
         document.getElementById('stop').disabled = false;
-    });
+    }
     document.getElementById('stop').addEventListener('click', function() {
         sound.stop(0);
         sound2.stop(0);
-        sound3.stop(0);
-       
+        //sound3.stop(0);
        
         sound.isPlaying = false;
+        sound2.isPlaying = false;
+        //sound3.isPlaying = false;
+        
         document.getElementById('play').disabled = false;
         document.getElementById('stop').disabled = true;
     });
@@ -225,12 +238,10 @@ $(document).ready(function() {
 
 	var updateRotator = function(alpha, beta) {
 		rotator.yaw = angleSourcePosition(alpha, currentPosYX, source1x);
-		console.log("yaw1", rotator.yaw);
+		//console.log("yaw1", rotator.yaw);
 		rotator2.yaw = angleSourcePosition(alpha, currentPosYX, source2x);
-		console.log("yaw2", rotator2.yaw);
-		//rotator3.yaw = lookup[alpha3];		
-		//document.getElementById("YAW").innerHTML = rotator.yaw;
-		
+		//console.log("yaw2", rotator2.yaw);
+		//rotator3.yaw = angleSourcePosition(alpha, currentPosYX, source3x);;		
 		rotator.pitch = beta;
 		rotator.updateRotMtx();
 		rotator2.updateRotMtx();	
@@ -309,12 +320,21 @@ function gainD(distance){
 	else return(0);
 }
 
-function angleSourcePosition(alpha, posYX, src){
+Array.prototype.swap = function(){
+	// swap the 2 elements of the array.
+	var tmp = this[1];
+	this[1] = this[0];
+	this[0] = tmp;
+	return this;
+}
+
+function calcDistance(A, B){
+	return (Math.sqrt((B[0]-A[0])*(B[0]-A[0])+(B[1]-A[1])*(B[1]-A[1])));
+}
+
+function angleSourcePosition(alpha, pos, src){
 	var alphaROT;
-	var pos = new Array(2);
-	pos[0] = posYX[1];
-	pos[1] = posYX[0];
-	
+	pos.swap();
 	// Exceptions 0 90 180 270
 	if (pos[0] == src[0] && pos[1] < src[1]){
 		// source facing
@@ -339,10 +359,10 @@ function angleSourcePosition(alpha, posYX, src){
 
 	
 	if (src[0] < pos[0]){
-		if (src[1] < pos[1]){console.log("BG");alphaSource = 180 - alphaSource ;}
+		if (src[1] < pos[1]){alphaSource = 180 - alphaSource ;}
 	} else {
-		if (src[1] < pos[1]){console.log("BD"); alphaSource = alphaSource + 180 ;}
-		else {console.log("HD"); alphaSource = 360 - alphaSource ; }
+		if (src[1] < pos[1]){alphaSource = alphaSource + 180 ;}
+		else { alphaSource = 360 - alphaSource ; }
 	}	
 	console.log(alphaSource);
 	alphaROT = Math.round(alphaSource-alpha);
@@ -350,3 +370,5 @@ function angleSourcePosition(alpha, posYX, src){
 	if (alphaROT > 180) return(alphaROT - 360);
 	return (alphaROT);
 }
+
+

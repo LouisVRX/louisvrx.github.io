@@ -52,12 +52,10 @@
     <h2>Orientation </h2>
 		<table>
 			<tr>
-				<td>rotator.yaw :</td>
 				<td>Azymuth :</td>
 				<td>Elevation :</td>
 			</tr>
 			<tr>
-				<td id="YAW"></td>
 				<td id="alpha"></td>				
 				<td id="beta"></td>
 			</tr>
@@ -112,8 +110,12 @@ gain3.gain.value = gain3Slider.value;
 
 
 //define playground
+
 var source1x = [10,-10]; // [x, y]en metres
 var source2x = [-15,15]; // [x, y]en metres
+
+source1_ambisonics = false ;
+source2_ambisonics = false ;
 
 var s1pD = new Array(5); //[x1,y1,x2,y2,s1d] 
 var s2pD = new Array(5); 
@@ -136,98 +138,8 @@ var ks1 = document.getElementById("s1data");
 var currentPosition= [0, 0];
 var centerPosition= [0, 0];
 var currentPosYX = [0, 0];
-	
-	
-	
-// define center of playground by clicking on button 
 var coords = {lat: "", lon: ""};
-function setCenterLocation() {
-    navigator.geolocation.getCurrentPosition(getPosition);
-    } 
-
-function getPosition(position) {
-	coords.lat = position.coords.latitude;
-    coords.lon = position.coords.longitude;
-	centerPosition= [coords.lat, coords.lon] ;
-	currentPosYX = calcPosition(currentPosition, centerPosition);
-	k.innerHTML= "current location:" + currentPosition +"   center location:" + centerPosition +"    current position for canvas:" +currentPosYX;
-	kw.innerHTML= "WARNING -it's ON -  Press Stop button to calibrate center";
-	f();
 	
-}	
-
- function stopWatch(){
-    navigator.geolocation.clearWatch(watchID);
-	kw.innerHTML= "";
-         }
-
-// current GPS position 
-
-var options = {enableHighAccuracy: true,timeout: 5000,maximumAge: 0,desiredAccuracy: 0, frequency: 100};
-function f() {
-    // Update every 100 ms seconds
-    watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
-    }
-    
-// onSuccess Geolocation
-function onSuccess(position) {
-	currentPosition= [position.coords.latitude, position.coords.longitude] ;
-	currentPosYX = calcPosition(currentPosition, centerPosition);
-     // Move the marker to current location
-    marker.XPos = Xposcentre+ Math.round(currentPosYX[1])*PPM;
-	marker.YPos = Yposcentre+ Math.round(currentPosYX[0])*PPM;
-// calcul distance current position- bord du coverage source
-	s1pD = calcDistanceReceiverBordSource(currentPosYX[1],currentPosYX[0],source1x[0],source1x[1],r_source);
-	s2pD = calcDistanceReceiverBordSource(currentPosYX[1],currentPosYX[0],source2x[0],source2x[1],r_source);
-// changement des gains
-	gain1.gain.value = gainD(s1pD[4]);
-	gain2.gain.value = gainD(s2pD[4]);
-	console.log(gain1.gain.value, gain2.gain.value);
-	
-//affiche les données	
-	k.innerHTML= "current location: " + currentPosition +"   center location: " + centerPosition +"    current position for canvas: " + currentPosYX;
-    ks1.innerHTML= "bord1: " + s1pD[0] + "/" + s1pD[1] + "  bord2: " + s1pD[2] + "/" + s1pD[3] + " distance Source 1 border: " + s1pD[4];		
-	}	
-
-	
-  // onError Callback receives a PositionError object
-function onError(error) {
-    alert('code: '    + error.code    + '\n' +
-            'message: ' + error.message + '\n');
-    }
-		
-//window.onload = f;
-
-
-	
-	
-/* function showLocation(position) {
-	coords.lat = position.coords.latitude;
-    coords.lon = position.coords.longitude;
-	centrePosition= [coords.lat, coords.lon] ;
-centrePosition= [coords.lat, coords.lon] ;	
-k.innerHTML = "current location" + centrePosition;
-} */
-
-/* function errorHandler(err) {
-            if(err.code == 1) {
-               alert("Error: Access is denied!");
-            }
-            
-            else if( err.code == 2) {
-               alert("Error: Position is unavailable!");
-            }
-         }
- */
-
-		 
-
-
-   
-  //currentPosition= calcPosition(coord1, coord2)
-
-
-
 ////////////////////////////
 // SET-UP GUI AND USER INPUT
 var canvas = document.getElementById('Canvas');
@@ -243,7 +155,7 @@ var mapSprite = new Image();
 var Marker = function () {
     this.Sprite = new Image();
     // this.Sprite.src = "https://dl.dropboxusercontent.com/u/6300538/WebAmbi/cursor.png"
-    this.Sprite.src = "images/cursor.png"
+    this.Sprite.src = "images/cursor.png";
     this.Width = 30;
     this.Height = 30;
     // marker to canvas center
@@ -252,11 +164,12 @@ var Marker = function () {
 	Xposcentre = this.XPos;
 	Yposcentre = this.YPos;
 }
+
 var marker = new Marker();
 
 var MarkerSource = function (sourcexy,sizeRatio) {
     this.Sprite = new Image();
-    this.Sprite.src = "images/source.png"
+    this.Sprite.src = "images/source.png";
     this.Width = 60 *sizeRatio;
     this.Height = 59*sizeRatio;
     // marker 
@@ -285,16 +198,85 @@ function draw() {
     if (!(typeof(drawLocal)=='undefined')) { drawLocal();	}
 	m.innerHTML= "Source 1:  " + source1x +";    Source  2:   " + source2x ;  
 };
-draw();
-$.holdReady( false ); // to force awaiting on common.html loading
+
+draw();	
+	
+// define center of playground by clicking on button 
+
+
+function setCenterLocation() {
+    navigator.geolocation.getCurrentPosition(getPosition);
+    } 
+
+function getPosition(position) {
+	coords.lat = position.coords.latitude;
+    coords.lon = position.coords.longitude;
+	centerPosition= [coords.lat, coords.lon] ;
+	currentPosYX = calcPosition(currentPosition, centerPosition);
+	k.innerHTML= "current location:" + currentPosition +"   center location:" + centerPosition +"    current position for canvas:" +currentPosYX;
+	kw.innerHTML= "WARNING -it's ON -  Press Stop button to calibrate center";
+	f();
+	
+}	
+
+ function stopWatch(){
+    navigator.geolocation.clearWatch(watchID);
+	kw.innerHTML= "";
+         }
+
+// current GPS position 
+
+var options = {enableHighAccuracy: true,timeout: 5000,maximumAge: 0,desiredAccuracy: 0, frequency: 100};
+function f() {
+    // Update every 100 ms seconds
+    watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
+    }
+
+// Enable the ambisony depending on the zone 
+
+
+// onSuccess Geolocation
+function onSuccess(position) {
+	currentPosition= [position.coords.latitude, position.coords.longitude] ;
+	currentPosYX = calcPosition(currentPosition, centerPosition);
+     // Move the marker to current location
+    marker.XPos = Xposcentre+ Math.round(currentPosYX[1])*PPM;
+	marker.YPos = Yposcentre+ Math.round(currentPosYX[0])*PPM;
+// calcul distance current position- bord du coverage source
+	s1pD = calcDistanceReceiverBordSource(currentPosYX[1],currentPosYX[0],source1x[0],source1x[1],r_source);
+	s2pD = calcDistanceReceiverBordSource(currentPosYX[1],currentPosYX[0],source2x[0],source2x[1],r_source);
+// changement des gains
+	gain1.gain.value = gainD(s1pD[4]);
+	gain2.gain.value = gainD(s2pD[4]);
+	//console.log(gain1.gain.value, gain2.gain.value);
+
+// changement des sources si on est dans une zone de source
+
+	if (calcDistance(currentPosYX.swap(), source1x) < r_source) {source1_ambisonics = true;
+		play;}
+	else {source1_ambisonics = false; play;}
+    if (calcDistance(currentPosYX, source2x) < r_source) {source2_ambisonics = true; play;}
+	else {source2_ambisonics = false; play;}	
+//affiche les données	
+	k.innerHTML= "current location: " + currentPosition +"   center location: " + centerPosition +"    current position for canvas: " + currentPosYX;
+    ks1.innerHTML= "bord1: " + s1pD[0] + "/" + s1pD[1] + "  bord2: " + s1pD[2] + "/" + s1pD[3] + " distance Source 1 border: " + s1pD[4];		
+	}	
+
+	
+// onError Callback receives a PositionError object
+function onError(error) {
+    alert('code: '    + error.code    + '\n' +
+            'message: ' + error.message + '\n');
+    }
+		
+
+$.holdReady( false ); // to force awaiting
 
 
 
 </script>
 
 <script src="./compassplayer.js"></script>
-
-
 
 </body>
 </html>
