@@ -252,11 +252,30 @@ function onSuccess(position) {
 
 // changement des sources si on est dans une zone de source
 
-	if (calcDistance(currentPosYX.swap(), source1x) < r_source) {source1_ambisonics = true;
-		play;}
-	else {source1_ambisonics = false; play;}
-    if (calcDistance(currentPosYX, source2x) < r_source) {source2_ambisonics = true; play;}
-	else {source2_ambisonics = false; play;}	
+	if (calcDistance(currentPosYX.swap(), source1x) < r_source) {
+		// ambisony
+		source1_ambisonics = true;
+		mono.disconnect();
+		sound.connect(limiter.in);
+		}
+	else { // mono
+		if (source1_ambisonics == true){
+			sound.disconnect();
+			mono.connect(encoder.in);
+			source1_ambisonics = false;}
+		}
+			
+    if (calcDistance(currentPosYX, source2x) < r_source) {
+    	source2_ambisonics = true;
+    	mono2.disconnect();
+		sound2.connect(limiter2.in);
+		}
+	else {
+		if (source2_ambisonics == true){
+			sound2.disconnect();
+			mono2.connect(encoder2.in);
+			source2_ambisonics = false;}	
+		}	
 //affiche les données	
 	k.innerHTML= "current location: " + currentPosition +"   center location: " + centerPosition +"    current position for canvas: " + currentPosYX;
     ks1.innerHTML= "bord1: " + s1pD[0] + "/" + s1pD[1] + "  bord2: " + s1pD[2] + "/" + s1pD[3] + " distance Source 1 border: " + s1pD[4];		

@@ -12,11 +12,11 @@ context.onstatechange = function() {
 }
 
 var sound_1 = "sounds/clicks.wav";
-var sound_2 = "sounds/paper.wav";
+var sound_2 = "sounds/attacks.wav";
 var sound_3 = "sounds/attacks.wav";
 
 var mono_1 = "sounds/clicks_mono.wav"
-var mono_2 = "sounds/paper_mono.wav"
+var mono_2 = "sounds/attacks_mono.wav"
 var mono_3 = "sounds/attacks_mono.wav"
 
 var irUrl_0 = "node_modules/web-audio-ambisonic/examples/IRs/HOA4_filters_virtual.wav";
@@ -146,19 +146,17 @@ for (var i = 0 ; i < 360 ; i++) {
 
 $(document).ready(function() {
    // Init event listeners
-    document.getElementById('play').addEventListener('click', play);
-    function play() {
-        console.log('plaaay!!')
+    document.getElementById('play').addEventListener('click', function() {
+
         sound = context.createBufferSource();
         mono = context.createBufferSource();
-        //if (source1_ambisonics) {
-        	sound.buffer = soundBuffer;
-        //	sound.connect(limiter.in);
-       	//}
-        //else { 
-        	mono.buffer = monoBuffer;
-        	mono.connect(encoder.in);
-        //	}
+        // ambisonic source 1 buffer       	
+        sound.buffer = soundBuffer;
+        //sound.connect(limiter.in);
+       	//mono source 1 buffer 
+        mono.buffer = monoBuffer;
+        mono.connect(encoder.in);
+        
         sound.loop = true;
         sound.start(0);
         sound.isPlaying = true;
@@ -167,16 +165,20 @@ $(document).ready(function() {
         mono.isPlaying = true;
         
         sound2 = context.createBufferSource();
-         if (source2_ambisonics) {
-         	sound2.buffer = soundBuffer2;
-         	sound2.connect(limiter2.in);}
-         else {
-         	sound2.buffer = monoBuffer2;
-         	sound2.connect(encoder2.in);
-         }
-        sound2.loop = true;        
+        mono2 = context.createBufferSource();
+        // ambisonic source 2 buffer       	
+        sound2.buffer = soundBuffer2;
+        //sound2.connect(limiter2.in);
+       	//mono source 2 buffer 
+        mono2.buffer = monoBuffer2;
+        mono2.connect(encoder2.in);
+        
+        sound2.loop = true;
         sound2.start(0);
         sound2.isPlaying = true;
+        mono2.loop = true;
+        mono2.start(0);
+        mono2.isPlaying = true;
 
         /*sound3 = context.createBufferSource();
         if (source3.ambisonics) {
@@ -194,7 +196,7 @@ $(document).ready(function() {
         
         document.getElementById('play').disabled = true;
         document.getElementById('stop').disabled = false;
-    }
+    });
     document.getElementById('stop').addEventListener('click', function() {
         sound.stop(0);
         sound2.stop(0);
