@@ -225,9 +225,11 @@ $(document).ready(function() {
 
 	var updateRotator = function(alpha, beta) {
 		rotator.yaw = angleSourcePosition(alpha, currentPosYX, source1x);
+		console.log("yaw1", rotator.yaw);
 		rotator2.yaw = angleSourcePosition(alpha, currentPosYX, source2x);
+		console.log("yaw2", rotator2.yaw);
 		//rotator3.yaw = lookup[alpha3];		
-		document.getElementById("YAW").innerHTML = rotator.yaw;
+		//document.getElementById("YAW").innerHTML = rotator.yaw;
 		
 		rotator.pitch = beta;
 		rotator.updateRotMtx();
@@ -250,7 +252,10 @@ function mouseAction(mouse) {
 
 
 Number.prototype.toRadians = function() {
-   return this * Math.PI / 180;
+   return this * Math.PI / 180;  
+}
+Number.prototype.toDegrees = function() {
+   return this * 180 / Math.PI;
 }
 
 function calcDistanceGPS(lat1, lat2, lon1, lon2) {
@@ -305,7 +310,7 @@ function gainD(distance){
 }
 
 function angleSourcePosition(alpha, posYX, src){
-	
+	var alphaROT;
 	var pos = new Array(2);
 	pos[0] = posYX[1];
 	pos[1] = posYX[0];
@@ -330,14 +335,18 @@ function angleSourcePosition(alpha, posYX, src){
 		else { return (90 - lookup[alpha]);}
 	}
 	
-	var alphaSource = Math.acos(Math.abs(src[1]-pos[1])/Math.sqrt((src[0]-pos[0])*(src[0]-pos[0])+(src[1]-pos[1])*(src[1]-pos[1])));
+	var alphaSource = Math.acos(Math.abs(src[1]-pos[1])/Math.sqrt((src[0]-pos[0])*(src[0]-pos[0])+(src[1]-pos[1])*(src[1]-pos[1])))*180/Math.PI;
+
 	
-	if (src[0] < 0){
-		if (src[1] < 0){alphaSource = 180-alphaSource ;}
+	if (src[0] < pos[0]){
+		if (src[1] < pos[1]){console.log("BG");alphaSource = 180 - alphaSource ;}
 	} else {
-		if (src[1] < 0){alphaSource = alphaSource-180 ;}
-		else { alphaSource = - alphaSource ; }
+		if (src[1] < pos[1]){console.log("BD"); alphaSource = alphaSource + 180 ;}
+		else {console.log("HD"); alphaSource = 360 - alphaSource ; }
 	}	
-	
-	return (alphaSource-alpha);
+	console.log(alphaSource);
+	alphaROT = Math.round(alphaSource-alpha);
+	if (alphaROT< -180) return(alphaROT + 360);
+	if (alphaROT > 180) return(alphaROT - 360);
+	return (alphaROT);
 }
