@@ -239,6 +239,7 @@ $(document).ready(function() {
 });
 
 	window.addEventListener('deviceorientation', function(evenement) {
+		evenement.absolute ;
 		document.getElementById("alpha").innerHTML = Math.round( evenement.alpha );
 		document.getElementById("beta").innerHTML = Math.round( evenement.beta );
 		updateRotator(Math.round(evenement.alpha), Math.round(evenement.beta));
