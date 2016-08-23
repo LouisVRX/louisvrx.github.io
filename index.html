@@ -61,16 +61,39 @@
 			</tr>
 		</table>
 
+
+
+<table> 
+<tr>
+	<td> Myposition </td>
+	<td id ="posXY"></td>
+	<td> Center </td>
+	<td id="centerCoord"></td>
+</tr>
+<tr>
+	<td></td>
+	<td> Source 1 </td>
+	<td> Source 2 </td>	
+</tr>
+<tr>
+		<td> Distance </td>
+	<td id="s1D"></td>
+	<td id="s2D"></td>	
+</tr>
+<tr>
+	<td> Gain </td>
+	<td id="s1G"></td>
+	<td id="s2G"></td>
+</tr>
+<tr>
+		<td> Rotator Deg </td>
+	<td id="yaw1"></td>
+	<td id="yaw2"></td>	
+</tr>
+</table>
+
 <button onclick="setCenterLocation()">Set Canvas Center coordinates</button>
 <input type="button" onclick="stopWatch();" value="Stop"/>		
-
-<p id="warning"> </p>			
-<br/>		
-<p id="showdata"> </p>	
-<br/>		
-<p id="s1data"> </p>		
-<br/>
-
 
 <div id="container">
     <!-- <img class='img' src="Picture1.png" alt="" /> -->
@@ -78,17 +101,29 @@
 </div>
 
 
-<p id="sourcePos"> </p>
-
+<p id="sourcePos"></p>
+<p id="warning"> </p>			
+<br/>		
+<p id="showdata"> </p>	
+<br/>		
+<p id="s1data"> </p>		
+<br/>
 
 <script>
-
-
 
 //GUI
 var mouseDown = false;
 var orderValue = document.getElementById('order-value');
 var soundChoice = document.getElementById('sound-choice');
+
+var centerCoord = document.getElementById("centerCoord");
+var positionXY = document.getElementById("posXY");
+var source1D = document.getElementById("s1D");
+var source2D = document.getElementById("s2D");
+var source1G = document.getElementById("s1G");
+var source2G = document.getElementById("s2G");
+var source1Y = document.getElementById("yaw1");
+var source2Y = document.getElementById("yaw2");
 
 // Add mouse click event listener to canvas
 var volumeSlider = document.getElementById('volume-slider');
@@ -124,20 +159,19 @@ var r_source = 6 ;
 
 //The origin is in the top-left corner, and increasing values go down rather than up
 
-
 //  Map scale - pixels per meter
 var PPM = 18; //366 pixels for around 20 m 
-
-
 
 //geolocalisation
 var k = document.getElementById("showdata");
 var kw = document.getElementById("warning");
 var ks1 = document.getElementById("s1data");
 
-var currentPosition= [0, 0];
-var centerPosition= [0, 0];
+
+var currentPosition = [0, 0];
+var centerPosition = [0, 0];
 var currentPosYX = [0, 0];
+var currentPosXY = [0, 0];
 var coords = {lat: "", lon: ""};
 	
 ////////////////////////////
@@ -202,8 +236,6 @@ function draw() {
 draw();	
 	
 // define center of playground by clicking on button 
-
-
 function setCenterLocation() {
     navigator.geolocation.getCurrentPosition(getPosition);
     } 
@@ -237,22 +269,30 @@ function f() {
 
 // onSuccess Geolocation
 function onSuccess(position) {
+	
 	currentPosition= [position.coords.latitude, position.coords.longitude] ;
 	currentPosYX = calcPosition(currentPosition, centerPosition);
-     // Move the marker to current location
-    marker.XPos = Xposcentre+ Math.round(currentPosYX[1])*PPM;
-	marker.YPos = Yposcentre+ Math.round(currentPosYX[0])*PPM;
-// calcul distance current position- bord du coverage source
-	s1pD = calcDistanceReceiverBordSource(currentPosYX[1],currentPosYX[0],source1x[0],source1x[1],r_source);
-	s2pD = calcDistanceReceiverBordSource(currentPosYX[1],currentPosYX[0],source2x[0],source2x[1],r_source);
-// changement des gains
+	currentPosXY = currentPosYX.swap() ;	
+	positionXY.innerHTML = currentPosXY;
+
+    // Move the marker to current location
+    marker.XPos = Xposcentre+ Math.round(currentPosXY[0])*PPM;
+	marker.YPos = Yposcentre+ Math.round(currentPosXY[1])*PPM;
+
+	// calcul distance current position- bord du coverage source
+	s1pD = calcDistanceReceiverBordSource(currentPosXY[0],currentPosXY[1],source1x[0],source1x[1],r_source);
+	s2pD = calcDistanceReceiverBordSource(currentPosXY[0],currentPosXY[1],source2x[0],source2x[1],r_source);
+	source1D.innerHTML = s1pD[4];
+	source2D.innerHTML = s2pD[4];
+
+	// changement des gains
 	gain1.gain.value = gainD(s1pD[4]);
+	source1G.innerHTML = gain1.gain.value;
 	gain2.gain.value = gainD(s2pD[4]);
-	//console.log(gain1.gain.value, gain2.gain.value);
-
-// changement des sources si on est dans une zone de source
-
-	if (calcDistance(currentPosYX.swap(), source1x) < r_source) {
+	source2G.innerHTML = gain2.gain.value;
+	
+	// changement des sources si on est dans une zone de source
+	if (calcDistance(currentPosXY, source1x) < r_source) {
 		// ambisony
 		source1_ambisonics = true;
 		mono.disconnect();
@@ -265,7 +305,7 @@ function onSuccess(position) {
 			source1_ambisonics = false;}
 		}
 			
-    if (calcDistance(currentPosYX, source2x) < r_source) {
+    if (calcDistance(currentPosXY, source2x) < r_source) {
     	source2_ambisonics = true;
     	mono2.disconnect();
 		sound2.connect(limiter2.in);
@@ -277,8 +317,9 @@ function onSuccess(position) {
 			source2_ambisonics = false;}	
 		}	
 //affiche les données	
-	k.innerHTML= "current location: " + currentPosition +"   center location: " + centerPosition +"    current position for canvas: " + currentPosYX;
+	k.innerHTML= "current location: " + currentPosition +"   center location: " + centerPosition +"    current position for canvas: " + currentPosXY;
     ks1.innerHTML= "bord1: " + s1pD[0] + "/" + s1pD[1] + "  bord2: " + s1pD[2] + "/" + s1pD[3] + " distance Source 1 border: " + s1pD[4];		
+	
 	}	
 
 	

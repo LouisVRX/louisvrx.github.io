@@ -238,38 +238,25 @@ $(document).ready(function() {
 
 });
 
-	window.addEventListener('deviceorientation', function(evenement) {
-		document.getElementById("alpha").innerHTML = Math.round( evenement.absolute );
-		document.getElementById("beta").innerHTML = Math.round( evenement.beta );
-		updateRotator(Math.round(evenement.absolute), Math.round(evenement.beta));
-	}),false;
+window.addEventListener('deviceorientation', function(evenement) {
+	document.getElementById("alpha").innerHTML = Math.round( evenement.alpha );
+	console.log(evenement.absolute);
+	document.getElementById("beta").innerHTML = Math.round( evenement.beta );
+	updateRotator(Math.round(evenement.alpha), Math.round(evenement.beta));
+}),false;
 
-	var updateRotator = function(alpha, beta) {
-		rotator.yaw = angleSourcePosition(alpha, currentPosYX, source1x);
-		//console.log("yaw1", rotator.yaw);
-		rotator2.yaw = angleSourcePosition(alpha, currentPosYX, source2x);
-		//console.log("yaw2", rotator2.yaw);
-		//rotator3.yaw = angleSourcePosition(alpha, currentPosYX, source3x);;		
-		rotator.pitch = beta;
-		rotator.updateRotMtx();
-		rotator2.updateRotMtx();	
-	    //rotator3.updateRotMtx();		
-	};
+var updateRotator = function(alpha, beta) {
+	rotator.yaw = angleSourcePosition(alpha, currentPosXY, source1x);
+	source1Y.innerHTML = rotator.yaw;
+	rotator2.yaw = angleSourcePosition(alpha, currentPosXY, source2x);
+	source2Y.innerHTML = rotator2.yaw;
+	//rotator3.yaw = angleSourcePosition(alpha, currentPosYX, source3x);;		
+	rotator.pitch = beta;
+	rotator.updateRotMtx();
+	rotator2.updateRotMtx();	
+    //rotator3.updateRotMtx();		
+};
 	
-// When the user clicks their mouse on our canvas run this code
-function mouseAction(mouse) {
-    // Get current mouse coords
-    var rect = canvas.getBoundingClientRect();
-    var mouseXPos = (mouse.clientX - rect.left);
-    var mouseYPos = (mouse.clientY - rect.top);
-
-    // update html values
-    document.getElementById("azim-value").innerHTML = mouseXPos;
-    document.getElementById("azim-value").innerHTML = mouseXPos;
-}
-
-
-
 Number.prototype.toRadians = function() {
    return this * Math.PI / 180;  
 }
@@ -330,10 +317,10 @@ function gainD(distance){
 
 Array.prototype.swap = function(){
 	// swap the 2 elements of the array.
-	var tmp = this[1];
-	this[1] = this[0];
-	this[0] = tmp;
-	return this;
+	var array = new Array();
+	array[1] = this[0];
+	array[0] = this[1];
+	return array;
 }
 
 function calcDistance(A, B){
@@ -342,7 +329,7 @@ function calcDistance(A, B){
 
 function angleSourcePosition(alpha, pos, src){
 	var alphaROT;
-	pos.swap();
+	//pos.swap();
 	// Exceptions 0 90 180 270
 	if (pos[0] == src[0] && pos[1] < src[1]){
 		// source facing
