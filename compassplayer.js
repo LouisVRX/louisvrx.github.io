@@ -96,8 +96,8 @@ var assignSample2SoundBuffer = function(decodedBuffer) {
     monoBuffer = decodedBuffer;
     document.getElementById('play').disabled = false;
 }
-var assignSample2SoundBuffer2 = function(decodedBuffer) { monoBuffer2 = decodedBuffer;document.getElementById('play').disabled = false}
-var assignSample2SoundBuffer3 = function(decodedBuffer) { monoBuffer3 = decodedBuffer;document.getElementById('play').disabled = false}
+var assignSample2SoundBuffer2 = function(decodedBuffer) { monoBuffer2 = decodedBuffer;}
+var assignSample2SoundBuffer3 = function(decodedBuffer) { monoBuffer3 = decodedBuffer;}
 
 // function to load samples
 function loadSample(url, doAfterLoading) {
@@ -118,8 +118,8 @@ var assignSoundBufferOnLoad = function(buffer) {
     soundBuffer = buffer;
     document.getElementById('play').disabled = false;
 }
-var assignSoundBufferOnLoad2 = function(buffer) { soundBuffer2 = buffer;document.getElementById('play').disabled = false}
-var assignSoundBufferOnLoad3 = function(buffer) { soundBuffer3 = buffer;document.getElementById('play').disabled = false}
+var assignSoundBufferOnLoad2 = function(buffer) { soundBuffer2 = buffer;}
+var assignSoundBufferOnLoad3 = function(buffer) { soundBuffer3 = buffer;}
 
 var loader_sound_1 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_1,assignSoundBufferOnLoad);
 loader_sound_1.load();
