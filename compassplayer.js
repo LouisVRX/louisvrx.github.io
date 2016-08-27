@@ -11,13 +11,13 @@ context.onstatechange = function() {
     if (context.state === "suspended") { context.resume(); }
 }
 
-var sound_1 = "sounds/clicks.wav";
-var sound_2 = "sounds/paper.wav";
-var sound_3 = "sounds/attacks.wav";
+var sound_1 = "sounds/animal/Birds_and_Moves_ACN_SN3D.wav";
+var sound_2 = "sounds/animal/Bird_ACN_SN3D.wav";
+//var sound_3 = "sounds/attacks.wav";
 
-var mono_1 = "sounds/clicks_mono.wav"
-var mono_2 = "sounds/DeGaulle.wav"
-var mono_3 = "sounds/attacks_mono.wav"
+var mono_1 = "sounds/animal/Dolphins.mp3"
+var mono_2 = "sounds/animal/Lion roar animals103.wav"
+//var mono_3 = "sounds/attacks_mono.wav"
 
 var irUrl_0 = "node_modules/web-audio-ambisonic/examples/IRs/HOA4_filters_virtual.wav";
 var irUrl_1 = "node_modules/web-audio-ambisonic/examples/IRs/HOA4_filters_direct.wav";
@@ -25,7 +25,7 @@ var irUrl_2 = "node_modules/web-audio-ambisonic/examples/IRs/room-medium-1-furni
 
 var maxOrder = 3;
 var orderOut = 3;
-var soundBuffer, soundBuffer2, soundBuffer3, monoBuffer, monoBuffer2, monoBuffer3, sound;
+var soundBuffer, soundBuffer2, monoBuffer, monoBuffer2, sound;
 var alpha2, alpha3;
 
 // define HOA order limiter (to show the effect of order)
@@ -35,16 +35,16 @@ console.log(limiter);
 var limiter2 = new webAudioAmbisonic.orderLimiter(context, maxOrder, orderOut);
 console.log(limiter2);
 
-var limiter3 = new webAudioAmbisonic.orderLimiter(context, maxOrder, orderOut);
-console.log(limiter3);
+//var limiter3 = new webAudioAmbisonic.orderLimiter(context, maxOrder, orderOut);
+//console.log(limiter3);
 
 //Mono encoders
 var encoder = new webAudioAmbisonic.monoEncoder(context, maxOrder);
 console.log(encoder);
 var encoder2 = new webAudioAmbisonic.monoEncoder(context, maxOrder);
 console.log(encoder2);
-var encoder3 = new webAudioAmbisonic.monoEncoder(context, maxOrder);
-console.log(encoder3);
+//var encoder3 = new webAudioAmbisonic.monoEncoder(context, maxOrder);
+//console.log(encoder3);
 
 // define HOA rotator
 var rotator = new webAudioAmbisonic.sceneRotator(context, maxOrder);
@@ -55,9 +55,9 @@ var rotator2 = new webAudioAmbisonic.sceneRotator(context, maxOrder);
 rotator2.init();
 console.log(rotator2);
 
-var rotator3 = new webAudioAmbisonic.sceneRotator(context, maxOrder);
-rotator3.init();
-console.log(rotator3);
+//var rotator3 = new webAudioAmbisonic.sceneRotator(context, maxOrder);
+//rotator3.init();
+//console.log(rotator3);
 
 // binaural HOA decoder
 var decoder = new webAudioAmbisonic.binDecoder(context, maxOrder);
@@ -67,16 +67,16 @@ console.log(decoder);
 var masterGain = context.createGain();
 var gain1 = context.createGain();
 var gain2 = context.createGain();
-var gain3 = context.createGain();
+//var gain3 = context.createGain();
 
 // connect HOA blocks
 encoder.out.connect(limiter.in);
 encoder2.out.connect(limiter2.in);
-encoder3.out.connect(limiter3.in);
+//encoder3.out.connect(limiter3.in);
 
 limiter.out.connect(rotator.in);
 limiter2.out.connect(rotator2.in);
-limiter3.out.connect(rotator3.in);
+//limiter3.out.connect(rotator3.in);
 
 rotator.out.connect(gain1);
 gain1.connect(decoder.in);
@@ -84,8 +84,8 @@ gain1.connect(decoder.in);
 rotator2.out.connect(gain2);
 gain2.connect(decoder.in);
 
-rotator3.out.connect(gain3);
-gain3.connect(decoder.in);
+//rotator3.out.connect(gain3);
+//gain3.connect(decoder.in);
 
 decoder.out.connect(masterGain);
 masterGain.connect(context.destination);
@@ -97,7 +97,7 @@ var assignSample2SoundBuffer = function(decodedBuffer) {
     document.getElementById('play').disabled = false;
 }
 var assignSample2SoundBuffer2 = function(decodedBuffer) { monoBuffer2 = decodedBuffer;}
-var assignSample2SoundBuffer3 = function(decodedBuffer) { monoBuffer3 = decodedBuffer;}
+//var assignSample2SoundBuffer3 = function(decodedBuffer) { monoBuffer3 = decodedBuffer;}
 
 // function to load samples
 function loadSample(url, doAfterLoading) {
@@ -111,7 +111,7 @@ function loadSample(url, doAfterLoading) {
 }
 loadSample(mono_1, assignSample2SoundBuffer);
 loadSample(mono_2, assignSample2SoundBuffer2);
-loadSample(mono_3, assignSample2SoundBuffer3);
+//loadSample(mono_3, assignSample2SoundBuffer3);
 
 // load samples and assign to buffers
 var assignSoundBufferOnLoad = function(buffer) {
@@ -119,7 +119,7 @@ var assignSoundBufferOnLoad = function(buffer) {
     document.getElementById('play').disabled = false;
 }
 var assignSoundBufferOnLoad2 = function(buffer) { soundBuffer2 = buffer;}
-var assignSoundBufferOnLoad3 = function(buffer) { soundBuffer3 = buffer;}
+//var assignSoundBufferOnLoad3 = function(buffer) { soundBuffer3 = buffer;}
 
 var loader_sound_1 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_1,assignSoundBufferOnLoad);
 loader_sound_1.load();
@@ -139,8 +139,8 @@ loader_filters.load();
 // lookup table for the compass data -> rotator
 var lookup = new Array(361) ;
 for (var i = 0 ; i < 360 ; i++) {
-	if (i < 180){ lookup[i] = i; }
-	if (i >= 180){ lookup[i] = (i-360); }};
+	if (i < 180){ lookup[i] = - i; }
+	if (i >= 180){ lookup[i] = (360-i); }};
 	lookup[360] = 0;
 
 
@@ -337,16 +337,16 @@ function angleSourcePosition(alpha, pos, src){
 	}
 	if (pos[0] == src[0] && pos[1] > src[1]){
 		// source in the back
-		return(180-alpha);
+		return(alpha-180);
 	}
 	if (pos[1] == src[1] && pos[0] < src[0]){
 		// source on the right
-		if (alpha > 90) { return(270-alpha);}
+		if (alpha > 90) { return(alpha-270);}
 		else { return lookup[270 - alpha];}
 	}
 	if (pos[1] == src[1] && pos[0] > src[0]){
 		// source on the left
-		if (alpha < 270) {return(90-alpha);}
+		if (alpha < 270) {return(alpha-90);}
 		else { return (90 - lookup[alpha]);}
 	}
 	
@@ -359,9 +359,9 @@ function angleSourcePosition(alpha, pos, src){
 		if (src[1] < pos[1]){alphaSource = alphaSource + 180 ;}
 		else { alphaSource = 360 - alphaSource ; }
 	}	
-	console.log(alphaSource);
-	alphaROT = Math.round(alphaSource-alpha);
-	if (alphaROT< -180) return(alphaROT + 360);
+	//console.log(alphaSource);
+	alphaROT = Math.round(alpha-alphaSource);
+	if (alphaROT < -180) return(alphaROT + 360);
 	if (alphaROT > 180) return(alphaROT - 360);
 	return (alphaROT);
 }

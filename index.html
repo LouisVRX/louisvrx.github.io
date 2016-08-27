@@ -32,7 +32,7 @@
 		<input id="volume-slider" type="range" min="0" max="10" value="1" step="0.1" />
 	</div>
 	
-	<div id='div-volume1'>
+	<!-- <div id='div-volume1'>
 		<label for="gain1">Gain 1</label> &nbsp;
 		<input id="gain1-slider" type="range" min="0" max="1" value="1" step="0.1" />
 	</div>
@@ -45,52 +45,10 @@
 	<div id='div-volume3'>
 		<label for="gain3">Gain 3</label> &nbsp;
 		<input id="gain3-slider" type="range" min="0" max="1" value="0" step="0.1" />
-	</div>
+	</div> -->
 		
 	
-	
-    <h2>Orientation </h2>
-		<table>
-			<tr>
-				<td>Azymuth :</td>
-				<td>Elevation :</td>
-			</tr>
-			<tr>
-				<td id="alpha"></td>				
-				<td id="beta"></td>
-			</tr>
-		</table>
 
-
-
-<table> 
-<tr>
-	<td> Myposition </td>
-	<td id ="posXY"></td>
-	<td> Center </td>
-	<td id="centerCoord"></td>
-</tr>
-<tr>
-	<td></td>
-	<td> Source 1 </td>
-	<td> Source 2 </td>	
-</tr>
-<tr>
-		<td> Distance </td>
-	<td id="s1D"></td>
-	<td id="s2D"></td>	
-</tr>
-<tr>
-	<td> Gain </td>
-	<td id="s1G"></td>
-	<td id="s2G"></td>
-</tr>
-<tr>
-		<td> Rotator Deg </td>
-	<td id="yaw1"></td>
-	<td id="yaw2"></td>	
-</tr>
-</table>
 
 <button onclick="setCenterLocation()">Set Canvas Center coordinates</button>
 <input type="button" onclick="stopWatch();" value="Stop"/>		
@@ -102,6 +60,45 @@
 
 
 <p id="sourcePos"></p>
+
+<h2>Orientation </h2>
+<table>
+<tr>
+	<td></td>
+	<th>Azymuth :</th>
+	<th>Elevation :</th>
+</tr>
+<tr>
+	<td></td>
+	<td id="alpha"></td>				
+	<td id="beta"></td>
+</tr>
+<tr>
+	<th> Myposition </th>
+	<td id ="posXY"></td>
+</tr>
+<tr>
+	<td></td>
+	<th> Source 1 </th>
+	<th> Source 2 </th>	
+</tr>
+<tr>
+		<th> Distance </th>
+	<td id="s1D"></td>
+	<td id="s2D"></td>	
+</tr>
+<tr>
+	<th> Gain </th>
+	<td id="s1G"></td>
+	<td id="s2G"></td>
+</tr>
+<tr>
+		<th> Rotator Deg </th>
+	<td id="yaw1"></td>
+	<td id="yaw2"></td>	
+</tr>
+</table>
+
 <p id="warning"> </p>			
 <br/>		
 <p id="showdata"> </p>	
@@ -130,7 +127,7 @@ var volumeSlider = document.getElementById('volume-slider');
 volumeSlider.addEventListener('input', function(input) {
 masterGain.gain.value = volumeSlider.value;
 });
-var gain1Slider = document.getElementById('gain1-slider');
+/*var gain1Slider = document.getElementById('gain1-slider');
 gain1Slider.addEventListener('input', function(input) {
 gain1.gain.value = gain1Slider.value;
 });
@@ -141,7 +138,7 @@ gain2.gain.value = gain2Slider.value;
 var gain3Slider = document.getElementById('gain3-slider');
 gain3Slider.addEventListener('input', function(input) {
 gain3.gain.value = gain3Slider.value;
-});
+});*/
 
 
 //define playground
