@@ -11,13 +11,15 @@ context.onstatechange = function() {
     if (context.state === "suspended") { context.resume(); }
 }
 
-var sound_1 = "sounds/animal/Birds_and_Moves_ACN_SN3D.wav";
-var sound_2 = "sounds/animal/Bird_ACN_SN3D.wav";
-//var sound_3 = "sounds/attacks.wav";
+//var sound_1 = "sounds/animal/Birds_and_Moves_ACN_SN3D.wav";
+//var sound_2 = "sounds/animal/Bird_ACN_SN3D.wav";
+////var sound_3 = "sounds/attacks.wav";
 
 var mono_1 = "sounds/animal/Dolphins.mp3"
 var mono_2 = "sounds/animal/Lion roar animals103.wav"
-//var mono_3 = "sounds/attacks_mono.wav"
+var mono_3 = "sounds/clicks_mono.wav"
+
+var mono, mono2, mono3;
 
 var irUrl_0 = "node_modules/web-audio-ambisonic/examples/IRs/HOA4_filters_virtual.wav";
 var irUrl_1 = "node_modules/web-audio-ambisonic/examples/IRs/HOA4_filters_direct.wav";
@@ -25,7 +27,8 @@ var irUrl_2 = "node_modules/web-audio-ambisonic/examples/IRs/room-medium-1-furni
 
 var maxOrder = 3;
 var orderOut = 3;
-var soundBuffer, soundBuffer2, monoBuffer, monoBuffer2, sound;
+//var soundBuffer, soundBuffer2;
+var monoBuffer, monoBuffer2, monoBuffer3;
 var alpha2, alpha3;
 
 // define HOA order limiter (to show the effect of order)
@@ -35,16 +38,16 @@ console.log(limiter);
 var limiter2 = new webAudioAmbisonic.orderLimiter(context, maxOrder, orderOut);
 console.log(limiter2);
 
-//var limiter3 = new webAudioAmbisonic.orderLimiter(context, maxOrder, orderOut);
-//console.log(limiter3);
+var limiter3 = new webAudioAmbisonic.orderLimiter(context, maxOrder, orderOut);
+console.log(limiter3);
 
 //Mono encoders
 var encoder = new webAudioAmbisonic.monoEncoder(context, maxOrder);
 console.log(encoder);
 var encoder2 = new webAudioAmbisonic.monoEncoder(context, maxOrder);
 console.log(encoder2);
-//var encoder3 = new webAudioAmbisonic.monoEncoder(context, maxOrder);
-//console.log(encoder3);
+var encoder3 = new webAudioAmbisonic.monoEncoder(context, maxOrder);
+console.log(encoder3);
 
 // define HOA rotator
 var rotator = new webAudioAmbisonic.sceneRotator(context, maxOrder);
@@ -55,9 +58,9 @@ var rotator2 = new webAudioAmbisonic.sceneRotator(context, maxOrder);
 rotator2.init();
 console.log(rotator2);
 
-//var rotator3 = new webAudioAmbisonic.sceneRotator(context, maxOrder);
-//rotator3.init();
-//console.log(rotator3);
+var rotator3 = new webAudioAmbisonic.sceneRotator(context, maxOrder);
+rotator3.init();
+console.log(rotator3);
 
 // binaural HOA decoder
 var decoder = new webAudioAmbisonic.binDecoder(context, maxOrder);
@@ -67,16 +70,16 @@ console.log(decoder);
 var masterGain = context.createGain();
 var gain1 = context.createGain();
 var gain2 = context.createGain();
-//var gain3 = context.createGain();
+var gain3 = context.createGain();
 
 // connect HOA blocks
 encoder.out.connect(limiter.in);
 encoder2.out.connect(limiter2.in);
-//encoder3.out.connect(limiter3.in);
+encoder3.out.connect(limiter3.in);
 
 limiter.out.connect(rotator.in);
 limiter2.out.connect(rotator2.in);
-//limiter3.out.connect(rotator3.in);
+limiter3.out.connect(rotator3.in);
 
 rotator.out.connect(gain1);
 gain1.connect(decoder.in);
@@ -84,8 +87,8 @@ gain1.connect(decoder.in);
 rotator2.out.connect(gain2);
 gain2.connect(decoder.in);
 
-//rotator3.out.connect(gain3);
-//gain3.connect(decoder.in);
+rotator3.out.connect(gain3);
+gain3.connect(decoder.in);
 
 decoder.out.connect(masterGain);
 masterGain.connect(context.destination);
@@ -97,7 +100,7 @@ var assignSample2SoundBuffer = function(decodedBuffer) {
     document.getElementById('play').disabled = false;
 }
 var assignSample2SoundBuffer2 = function(decodedBuffer) { monoBuffer2 = decodedBuffer;}
-//var assignSample2SoundBuffer3 = function(decodedBuffer) { monoBuffer3 = decodedBuffer;}
+var assignSample2SoundBuffer3 = function(decodedBuffer) { monoBuffer3 = decodedBuffer;}
 
 // function to load samples
 function loadSample(url, doAfterLoading) {
@@ -111,20 +114,20 @@ function loadSample(url, doAfterLoading) {
 }
 loadSample(mono_1, assignSample2SoundBuffer);
 loadSample(mono_2, assignSample2SoundBuffer2);
-//loadSample(mono_3, assignSample2SoundBuffer3);
+loadSample(mono_3, assignSample2SoundBuffer3);
 
-// load samples and assign to buffers
-var assignSoundBufferOnLoad = function(buffer) {
-    soundBuffer = buffer;
-    document.getElementById('play').disabled = false;
-}
-var assignSoundBufferOnLoad2 = function(buffer) { soundBuffer2 = buffer;}
+//// load samples and assign to buffers
+//var assignSoundBufferOnLoad = function(buffer) {
+//    soundBuffer = buffer;
+//    document.getElementById('play').disabled = false;
+//}
+//var assignSoundBufferOnLoad2 = function(buffer) { soundBuffer2 = buffer;}
 //var assignSoundBufferOnLoad3 = function(buffer) { soundBuffer3 = buffer;}
 
-var loader_sound_1 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_1,assignSoundBufferOnLoad);
-loader_sound_1.load();
-var loader_sound_2 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_2, assignSoundBufferOnLoad2);
-loader_sound_2.load();
+//var loader_sound_1 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_1,assignSoundBufferOnLoad);
+//loader_sound_1.load();
+//var loader_sound_2 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_2, assignSoundBufferOnLoad2);
+//loader_sound_2.load();
 //var loader_sound_3 = new webAudioAmbisonic.HOAloader(context, maxOrder, sound_3, assignSoundBufferOnLoad3);
 //loader_sound_3.load();
 
@@ -148,99 +151,78 @@ $(document).ready(function() {
    // Init event listeners
     document.getElementById('play').addEventListener('click', function() {
 
-        sound = context.createBufferSource();
         mono = context.createBufferSource();
-        // ambisonic source 1 buffer       	
-        sound.buffer = soundBuffer;
-        //sound.connect(limiter.in);
-       	//mono source 1 buffer 
+        mono.name = "src1"
         mono.buffer = monoBuffer;
         mono.connect(encoder.in);
-        
-        sound.loop = true;
-        sound.start(0);
-        sound.isPlaying = true;
         mono.loop = true;
         mono.start(0);
         mono.isPlaying = true;
         
-        sound2 = context.createBufferSource();
         mono2 = context.createBufferSource();
-        // ambisonic source 2 buffer       	
-        sound2.buffer = soundBuffer2;
-        //sound2.connect(limiter2.in);
-       	//mono source 2 buffer 
+        mono2.name = "src2"
         mono2.buffer = monoBuffer2;
         mono2.connect(encoder2.in);
-        
-        sound2.loop = true;
-        sound2.start(0);
-        sound2.isPlaying = true;
         mono2.loop = true;
         mono2.start(0);
         mono2.isPlaying = true;
 
-        /*sound3 = context.createBufferSource();
-        if (source3.ambisonics) {
-        	sound3.buffer = soundBuffer3;
-        	sound3.connect(limiter3.in);}
-        else {
-        	sound3.buffer = monoBuffer3;
-        	sound3.connect(encoder3.in);
-        } 
-  
-        sound3.loop = true;   
-        sound3.start(0);
-        sound3.isPlaying = true;*/
-              
-        
+        mono3 = context.createBufferSource();
+        mono3.name = "src3"
+        mono3.buffer = monoBuffer3;
+        mono3.connect(encoder3.in);
+        mono3.loop = true;
+        mono3.start(0);
+        mono3.isPlaying = true;
+
+
         document.getElementById('play').disabled = true;
         document.getElementById('stop').disabled = false;
     });
+
     document.getElementById('stop').addEventListener('click', function() {
-        sound.stop(0);
         mono.stop(0);
-        sound2.stop(0);
         mono2.stop(0);
-        //mono3.stop(0);
-        //sound3.stop(0);
-       
-        sound.isPlaying = false;
+        mono3.stop(0);
+//        mono.disconnect(encoder.in);
+//        mono2.disconnect(encoder2.in);
+//        mono3.disconnect(encoder3.in);
+
+
         mono.isPlaying = false;
-        sound2.isPlaying = false;
         mono2.isPlaying = false;
-        //mono3.isPlaying = false;
-        //sound3.isPlaying = false;
-        
+        mono3.isPlaying = false;
+
         document.getElementById('play').disabled = false;
         document.getElementById('stop').disabled = true;
     });
 
-    document.getElementById('N1').addEventListener('click', function() {
-        orderOut = 1;
-        orderValue.innerHTML = orderOut;
-        limiter.updateOrder(orderOut);
-        limiter.out.connect(rotator.in);
-    });
-    document.getElementById('N2').addEventListener('click', function() {
-        orderOut = 2;
-        orderValue.innerHTML = orderOut;
-        limiter.updateOrder(orderOut);
-        limiter.out.connect(rotator.in);
-    });
-    document.getElementById('N3').addEventListener('click', function() {
-        orderOut = 3;
-        orderValue.innerHTML = orderOut;
-        limiter.updateOrder(orderOut);
-        limiter.out.connect(rotator.in);
-    });
-    
+//    document.getElementById('N1').addEventListener('click', function() {
+//        orderOut = 1;
+//        orderValue.innerHTML = orderOut;
+//        limiter.updateOrder(orderOut);
+//        limiter.out.connect(rotator.in);
+//    });
+//
+//    document.getElementById('N2').addEventListener('click', function() {
+//        orderOut = 2;
+//        orderValue.innerHTML = orderOut;
+//        limiter.updateOrder(orderOut);
+//        limiter.out.connect(rotator.in);
+//    });
+//    document.getElementById('N3').addEventListener('click', function() {
+//        orderOut = 3;
+//        orderValue.innerHTML = orderOut;
+//        limiter.updateOrder(orderOut);
+//        limiter.out.connect(rotator.in);
+//    });
+
 
 });
 
 window.addEventListener('deviceorientation', function(evenement) {
 	document.getElementById("alpha").innerHTML = Math.round( evenement.alpha );
-	console.log(evenement.absolute);
+	//console.log(evenement.alpha);
 	document.getElementById("beta").innerHTML = Math.round( evenement.beta );
 	updateRotator(Math.round(evenement.alpha), Math.round(evenement.beta));
 }),false;
@@ -250,11 +232,11 @@ var updateRotator = function(alpha, beta) {
 	source1Y.innerHTML = rotator.yaw;
 	rotator2.yaw = angleSourcePosition(alpha, currentPosXY, source2x);
 	source2Y.innerHTML = rotator2.yaw;
-	//rotator3.yaw = angleSourcePosition(alpha, currentPosYX, source3x);;		
-	rotator.pitch = beta;
+	rotator3.yaw = angleSourcePosition(alpha, currentPosYX, source3x);;
+//	rotator.pitch = beta;
 	rotator.updateRotMtx();
 	rotator2.updateRotMtx();	
-    //rotator3.updateRotMtx();		
+    rotator3.updateRotMtx();
 };
 	
 Number.prototype.toRadians = function() {
@@ -364,6 +346,24 @@ function angleSourcePosition(alpha, pos, src){
 	if (alphaROT < -180) return(alphaROT + 360);
 	if (alphaROT > 180) return(alphaROT - 360);
 	return (alphaROT);
+}
+
+var muteSource = function(src, src_encoder) {
+
+    if (typeof src != "undefined") {
+        if (src.isPlaying) {
+            console.log("MUTE " + src.name);
+            src.disconnect(src_encoder.in);
+            src.isPlaying = false;
+
+        } else {
+            console.log("UNMUTE " + src.name);
+            src.connect(src_encoder.in);
+            src.isPlaying = true;
+        }
+        return true
+    }
+    return false
 }
 
 

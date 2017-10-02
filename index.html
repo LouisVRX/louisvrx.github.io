@@ -1,59 +1,72 @@
 <!DOCTYPE HTML>
-<link rel="stylesheet" type="text/css" href="common.css">
 <html>
 <head>
 	<title> Ambisonics with compass </title>
 	<script src="//code.jquery.com/jquery-3.0.0.min.js"></script>
 	<script type="text/javascript" src="node_modules/web-audio-ambisonic/web-audio-ambisonic.umd.js"></script>
+	<script src="https://use.fontawesome.com/92117df7b0.js"></script>
+	<!-- Latest compiled and minified CSS -->
+	<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
+	<link rel="stylesheet" type="text/css" href="common.css">
+
 </head>
 <body>
 	<h1> CIRMMT in the wild!</h1> <hr/>
-    
+
+	<div id="UI">
     <!-- PLAY / STOP -->
     <p>
     	Start / Stop audio: &nbsp;
-    	<button id="play" disabled>Play</button>
-    	<button id="stop" disabled>Stop</button>
+    	<button class="btn" id="play" disabled>Play</button>
+    	<button class="btn" id="stop" disabled>Stop</button>
     </p>
-    
-    <!-- AMBISONIC ORDER -->
-    <div id='div-order'>
-    	<p>
-    		Set Ambisonic order: <span id="order-value">3</span> &nbsp;
-    		<button id="N1">1st</button>
-    		<button id="N2">2nd</button>
-    		<button id="N3">3rd</button>
-    	</p>
-    </div>
-    
+
+	<p>
+		<i id="btn_src1" class="fa fa-toggle-on"></i> <b>1</b>
+		<i id="btn_src2" class="fa fa-toggle-on"></i> <b>2</b>
+		<i id="btn_src3" class="fa fa-toggle-on"></i> <b>3</b>
+
+	</p>
+
+    <!--&lt;!&ndash; AMBISONIC ORDER &ndash;&gt;-->
+    <!--<div id='div-order'>-->
+    	<!--<p>-->
+    		<!--Set Ambisonic order: <span id="order-value">3</span> &nbsp;-->
+    		<!--<button id="N1">1st</button>-->
+    		<!--<button id="N2">2nd</button>-->
+    		<!--<button id="N3">3rd</button>-->
+    	<!--</p>-->
+    <!--</div>-->
+    <!---->
     <!-- Volume Slider -->
 	<div id='div-volume'>
 		<label for="volume-slider">Volume</label> &nbsp;
 		<input id="volume-slider" type="range" min="0" max="10" value="1" step="0.1" />
 	</div>
 	
-	<!-- <div id='div-volume1'>
-		<label for="gain1">Gain 1</label> &nbsp;
-		<input id="gain1-slider" type="range" min="0" max="1" value="1" step="0.1" />
-	</div>
-	
-	<div id='div-volume2'>
-		<label for="gain2">Gain 2</label> &nbsp;
-		<input id="gain2-slider" type="range" min="0" max="1" value="1" step="0.1" />
-	</div>
-	
-	<div id='div-volume3'>
-		<label for="gain3">Gain 3</label> &nbsp;
-		<input id="gain3-slider" type="range" min="0" max="1" value="0" step="0.1" />
-	</div> -->
-		
-	
+	<!--<div id='div-volume1'>-->
+		<!--<label for="gain1">Gain 1</label> &nbsp;-->
+		<!--<input id="gain1-slider" type="range" min="0" max="1" value="1" step="0.1" />-->
+	<!--</div>-->
+
+	<!--<div id='div-volume2'>-->
+		<!--<label for="gain2">Gain 2</label> &nbsp;-->
+		<!--<input id="gain2-slider" type="range" min="0" max="1" value="1" step="0.1" />-->
+	<!--</div>-->
+
+	<!--<div id='div-volume3'>-->
+		<!--<label for="gain3">Gain 3</label> &nbsp;-->
+		<!--<input id="gain3-slider" type="range" min="0" max="1" value="1" step="0.1" />-->
+	<!--</div>-->
+		<!---->
+	<!---->
 
 
 <button onclick="setCenterLocation()">Set Canvas Center coordinates</button>
-<input type="button" onclick="stopWatch();" value="Stop"/>		
+<input type="button" onclick="stopWatch()" value="Stop"/>
+</div>
 
-<div id="container">
+<div id="container" style="padding: 15px 15px">
     <!-- <img class='img' src="Picture1.png" alt="" /> -->
     <canvas id="Canvas" width="732" height="732"></canvas>
 </div>
@@ -127,27 +140,54 @@ var volumeSlider = document.getElementById('volume-slider');
 volumeSlider.addEventListener('input', function(input) {
 masterGain.gain.value = volumeSlider.value;
 });
-/*var gain1Slider = document.getElementById('gain1-slider');
-gain1Slider.addEventListener('input', function(input) {
-gain1.gain.value = gain1Slider.value;
+
+var toggle_switch = function(element) {
+	 var is_on = $(element).hasClass('fa-toggle-on');
+	if (is_on) {
+		$(element).removeClass('fa-toggle-on');
+		$(element).addClass('fa-toggle-off');
+	}
+	else {
+		$(element).removeClass('fa-toggle-off');
+		$(element).addClass('fa-toggle-on')
+	}
+}
+
+
+$('#btn_src1').click( function () {
+	toggle_switch(this);
+	muteSource(mono,encoder);
 });
-var gain2Slider = document.getElementById('gain2-slider');
-gain2Slider.addEventListener('input', function(input) {
-gain2.gain.value = gain2Slider.value;
+$('#btn_src2').click( function () {
+	toggle_switch(this);
+	muteSource(mono2,encoder2);
 });
-var gain3Slider = document.getElementById('gain3-slider');
-gain3Slider.addEventListener('input', function(input) {
-gain3.gain.value = gain3Slider.value;
-});*/
+$('#btn_src3').click( function () {
+	toggle_switch(this);
+	muteSource(mono3,encoder3);
+});
+
+
+
+<!--var gain1Slider = document.getElementById('gain1-slider');-->
+<!--gain1Slider.addEventListener('input', function(input) {-->
+<!--gain1.gain.value = gain1Slider.value;-->
+<!--});-->
+<!--var gain2Slider = document.getElementById('gain2-slider');-->
+<!--gain2Slider.addEventListener('input', function(input) {-->
+<!--gain2.gain.value = gain2Slider.value;-->
+<!--});-->
+<!--var gain3Slider = document.getElementById('gain3-slider');-->
+<!--gain3Slider.addEventListener('input', function(input) {-->
+<!--gain3.gain.value = gain3Slider.value;-->
+<!--});-->
 
 
 //define playground
 
-var source1x = [10,-10]; // [x, y]en metres
-var source2x = [-15,15]; // [x, y]en metres
-
-source1_ambisonics = false ;
-source2_ambisonics = false ;
+var source1x = [0,10]; // [x, y]en metres
+var source2x = [10,-10]; // [x, y]en metres
+var source3x = [-10,-10]; // [x, y]en metres
 
 var s1pD = new Array(5); //[x1,y1,x2,y2,s1d] 
 var s2pD = new Array(5); 
@@ -171,8 +211,9 @@ var currentPosYX = [0, 0];
 var currentPosXY = [0, 0];
 var coords = {lat: "", lon: ""};
 	
-////////////////////////////
-// SET-UP GUI AND USER INPUT
+//////////////////////////////
+// SET-UP GUI AND USER INPUT//
+//////////////////////////////
 var canvas = document.getElementById('Canvas');
 var canvas_context = canvas.getContext("2d");
 canvas_context.transform(1, 0, 0, -1, 0, canvas.height);
@@ -182,41 +223,43 @@ var Yposcentre = 0 ;
 
 // Map sprite
 var mapSprite = new Image();
-// Create a basic class which will be used to create a marker
-var Marker = function () {
+
+// Create a basic class which will be used to create a cursor
+var Cursor = function () {
     this.Sprite = new Image();
-    // this.Sprite.src = "https://dl.dropboxusercontent.com/u/6300538/WebAmbi/cursor.png"
-    this.Sprite.src = "images/cursor.png";
-    this.Width = 30;
-    this.Height = 30;
-    // marker to canvas center
+    this.Sprite.src = "images/pointerdown.png";
+    this.Width = 512 / 10;
+    this.Height = 512 / 10;
+    // cursor to canvas center
     this.XPos = (document.getElementById('Canvas').width / 2) - this.Width/2;
     this.YPos = (document.getElementById('Canvas').height / 2) - this.Width/2;
 	Xposcentre = this.XPos;
 	Yposcentre = this.YPos;
 }
 
-var marker = new Marker();
+var cursor = new Cursor();
 
 var MarkerSource = function (sourcexy,sizeRatio) {
     this.Sprite = new Image();
-    this.Sprite.src = "images/source.png";
-    this.Width = 60 *sizeRatio;
-    this.Height = 59*sizeRatio;
+    this.Sprite.src = "images/sound.png";
+    this.Width = 256*sizeRatio;
+    this.Height = 256*sizeRatio;
     // marker 
     this.XPos = Xposcentre+(sourcexy[0]*PPM);
     this.YPos = Yposcentre+(sourcexy[1]*PPM);
 }
-var markerSource1 = new MarkerSource(source1x,1.5);
-var markerSource2 = new MarkerSource(source2x,2);
+var markerSource1 = new MarkerSource(source1x,0.3);
+var markerSource2 = new MarkerSource(source2x,0.3);
+var markerSource3 = new MarkerSource(source3x,0.3);
 var m = document.getElementById("sourcePos");
 
 
 
 function draw() {
+	// draw at each frame
     requestAnimationFrame(draw);
     // Clear Canvas
-    canvas_context.fillStyle = "#000";
+    canvas_context.fillStyle = "#777582";
     canvas_context.fillRect(0, 0, canvas.width, canvas.height);
     // Draw map
     canvas_context.drawImage(mapSprite, 0, 0);
@@ -224,7 +267,21 @@ function draw() {
 	// added - 
 	canvas_context.drawImage(markerSource1.Sprite, markerSource1.XPos, markerSource1.YPos, markerSource1.Width, markerSource1.Height);
 	canvas_context.drawImage(markerSource2.Sprite, markerSource2.XPos, markerSource2.YPos, markerSource2.Width, markerSource2.Height);
-	canvas_context.drawImage(marker.Sprite, marker.XPos, marker.YPos, marker.Width, marker.Height);
+	canvas_context.drawImage(markerSource3.Sprite, markerSource3.XPos, markerSource3.YPos, markerSource3.Width, markerSource3.Height);
+
+	if ($('#alpha')[0].innerHTML != "") {
+		canvas_context.save();
+		var alpha = Number($('#alpha')[0].innerHTML);
+	 	canvas_context.translate(cursor.XPos+cursor.Width/2 ,cursor.YPos+cursor.Height/2 );
+		canvas_context.rotate(alpha * Math.PI / 180);
+		canvas_context.drawImage(cursor.Sprite, -cursor.Width/2 , -cursor.Height/2 , cursor.Width, cursor.Height);
+		canvas_context.restore();
+	} else {
+		canvas_context.drawImage(cursor.Sprite, cursor.XPos, cursor.YPos, cursor.Width, cursor.Height);
+	}
+
+	//canvas_context.fillStyle="#FF0000";
+	//canvas_context.fillRect(canvas.width/2-25, canvas.height/2-25,50,50);
     // run example specific draw callback
     if (!(typeof(drawLocal)=='undefined')) { drawLocal();	}
 	m.innerHTML= "Source 1:  " + source1x +";    Source  2:   " + source2x ;  
@@ -259,7 +316,7 @@ var options = {enableHighAccuracy: true,timeout: 5000,maximumAge: 0,desiredAccur
 function f() {
     // Update every 100 ms seconds
     watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
-    }
+}
 
 // Enable the ambisony depending on the zone 
 
@@ -267,14 +324,14 @@ function f() {
 // onSuccess Geolocation
 function onSuccess(position) {
 	
-	currentPosition= [position.coords.latitude, position.coords.longitude] ;
+	currentPosition = [position.coords.latitude, position.coords.longitude] ;
 	currentPosYX = calcPosition(currentPosition, centerPosition);
 	currentPosXY = currentPosYX.swap() ;	
 	positionXY.innerHTML = currentPosXY;
 
-    // Move the marker to current location
-    marker.XPos = Xposcentre+ Math.round(currentPosXY[0])*PPM;
-	marker.YPos = Yposcentre+ Math.round(currentPosXY[1])*PPM;
+    // Move the cursor to current location
+    cursor.XPos = Xposcentre+ Math.round(currentPosXY[0])*PPM;
+	cursor.YPos = Yposcentre+ Math.round(currentPosXY[1])*PPM;
 
 	// calcul distance current position- bord du coverage source
 	s1pD = calcDistanceReceiverBordSource(currentPosXY[0],currentPosXY[1],source1x[0],source1x[1],r_source);
@@ -289,30 +346,7 @@ function onSuccess(position) {
 	source2G.innerHTML = gain2.gain.value;
 	
 	// changement des sources si on est dans une zone de source
-	if (calcDistance(currentPosXY, source1x) < r_source) {
-		// ambisony
-		source1_ambisonics = true;
-		mono.disconnect();
-		sound.connect(limiter.in);
-		}
-	else { // mono
-		if (source1_ambisonics == true){
-			sound.disconnect();
-			mono.connect(encoder.in);
-			source1_ambisonics = false;}
-		}
-			
-    if (calcDistance(currentPosXY, source2x) < r_source) {
-    	source2_ambisonics = true;
-    	mono2.disconnect();
-		sound2.connect(limiter2.in);
-		}
-	else {
-		if (source2_ambisonics == true){
-			sound2.disconnect();
-			mono2.connect(encoder2.in);
-			source2_ambisonics = false;}	
-		}	
+
 //affiche les données	
 	k.innerHTML= "current location: " + currentPosition +"   center location: " + centerPosition +"    current position for canvas: " + currentPosXY;
     ks1.innerHTML= "bord1: " + s1pD[0] + "/" + s1pD[1] + "  bord2: " + s1pD[2] + "/" + s1pD[3] + " distance Source 1 border: " + s1pD[4];		
