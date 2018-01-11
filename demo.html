@@ -1,0 +1,253 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title> Demo ambisonics web </title>
+    <script src="//code.jquery.com/jquery-3.0.0.min.js"></script>
+    <script type="text/javascript" src="node_modules/web-audio-ambisonic/web-audio-ambisonic.umd.js"></script>
+    <script src="https://use.fontawesome.com/92117df7b0.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
+    <link rel="stylesheet" type="text/css" href="common.css">
+
+</head>
+<body>
+<h1> Demo ambisonics web </h1>
+<hr/>
+
+<div id="UI">
+    <!-- PLAY / STOP -->
+    <p>
+        <b>Start / Stop audio:</b>
+        <button class="btn" id="play" disabled>Play</button>
+        <button class="btn" id="stop" disabled>Stop</button>
+        <br>
+        <b>Choose scene :</b>
+        <select id="scene_no" onchange="changeScene()">
+        <option value="vox">Voices</option>
+        <option value="parc">Parc</option>
+        <option value="sonar">submarine sonar</option>
+        <option value="cardinals">Cardinals</option>
+    </select>
+    </p>
+
+
+
+
+    <!-- Volume Slider -->
+    <div id='div-volume'>
+        <label for="volume-slider">Volume</label> &nbsp;
+        <input id="volume-slider" type="range" min="0" max="10" value="1" step="0.1"/>
+    </div>
+
+    <div id='div-volume1'>
+        <label for="gain1"><b>Source 1</b></label> &nbsp;
+        <input id="gain1-slider" type="range" min="0" max="1" value="1" step="0.1"/>
+        <i id="btn_src1" class="fa fa-toggle-on"></i>
+    </div>
+
+    <div id='div-volume2'>
+        <label for="gain2"><b>Source 2</b></label> &nbsp;
+        <input id="gain2-slider" type="range" min="0" max="1" value="1" step="0.1"/>
+        <i id="btn_src2" class="fa fa-toggle-on"></i>
+    </div>
+
+    <div id='div-volume3'>
+        <label for="gain3"><b>Source 3</b></label> &nbsp;
+        <input id="gain3-slider" type="range" min="0" max="1" value="1" step="0.1"/>
+        <i id="btn_src3" class="fa fa-toggle-on"></i>
+    </div>
+
+    <div id="container" style="padding: 15px 15px">
+        <!-- <img class='img' src="Picture1.png" alt="" /> -->
+        <canvas id="Canvas" width="732" height="732"></canvas>
+    </div>
+
+    <script src="./compassplayer.js"></script>
+
+    <script>
+
+//GUI
+var mouseDown = false;
+var orderValue = document.getElementById('order-value');
+var soundChoice = document.getElementById('sound-choice');
+
+var centerCoord = document.getElementById("centerCoord");
+var positionXY = document.getElementById("posXY");
+var source1D = document.getElementById("s1D");
+var source2D = document.getElementById("s2D");
+var source1G = document.getElementById("s1G");
+var source2G = document.getElementById("s2G");
+var source1Y = document.getElementById("yaw1");
+var source2Y = document.getElementById("yaw2");
+
+// Add mouse click event listener to canvas
+var volumeSlider = document.getElementById('volume-slider');
+volumeSlider.addEventListener('input', function(input) {
+masterGain.gain.value = volumeSlider.value;
+});
+
+var toggle_switch = function(element) {
+	 var is_on = $(element).hasClass('fa-toggle-on');
+	if (is_on) {
+		$(element).removeClass('fa-toggle-on');
+		$(element).addClass('fa-toggle-off');
+	}
+	else {
+		$(element).removeClass('fa-toggle-off');
+		$(element).addClass('fa-toggle-on')
+	}
+}
+
+
+$('#btn_src1').click( function () {
+	toggle_switch(this);
+	muteSource(mono,encoder);
+});
+$('#btn_src2').click( function () {
+	toggle_switch(this);
+	muteSource(mono2,encoder2);
+});
+$('#btn_src3').click( function () {
+	toggle_switch(this);
+	muteSource(mono3,encoder3);
+});
+
+
+
+var gain1Slider = document.getElementById('gain1-slider');
+gain1Slider.addEventListener('input', function(input) {
+gain1.gain.value = gain1Slider.value;
+});
+var gain2Slider = document.getElementById('gain2-slider');
+gain2Slider.addEventListener('input', function(input) {
+gain2.gain.value = gain2Slider.value;
+});
+var gain3Slider = document.getElementById('gain3-slider');
+gain3Slider.addEventListener('input', function(input) {
+gain3.gain.value = gain3Slider.value;
+});
+
+
+//define playground
+
+var source1x = [0,10]; // [x, y]en metres
+var source2x = [10,-10]; // [x, y]en metres
+var source3x = [-10,-10]; // [x, y]en metres
+
+var s1pD = new Array(5); //[x1,y1,x2,y2,s1d] 
+var s2pD = new Array(5); 
+
+var r_source = 6 ;
+
+//The origin is in the top-left corner, and increasing values go down rather than up
+
+//  Map scale - pixels per meter
+var PPM = 18; //366 pixels for around 20 m 
+
+
+
+var currentPosition = [0, 0];
+var centerPosition = [0, 0];
+var currentPosYX = [0, 0];
+var currentPosXY = [0, 0];
+var coords = {lat: "", lon: ""};
+	
+//////////////////////////////
+// SET-UP GUI AND USER INPUT//
+//////////////////////////////
+var canvas = document.getElementById('Canvas');
+var canvas_context = canvas.getContext("2d");
+canvas_context.transform(1, 0, 0, -1, 0, canvas.height);
+
+var Xposcentre = 0 
+var Yposcentre = 0 ;
+
+// Map sprite
+var mapSprite = new Image();
+
+// Create a basic class which will be used to create a cursor
+var Cursor = function () {
+    this.Sprite = new Image();
+    this.Sprite.src = "images/pointerdown.png";
+    this.Width = 512 / 10;
+    this.Height = 512 / 10;
+    // cursor to canvas center
+    this.XPos = (document.getElementById('Canvas').width / 2) - this.Width/2;
+    this.YPos = (document.getElementById('Canvas').height / 2) - this.Width/2;
+	Xposcentre = this.XPos;
+	Yposcentre = this.YPos;
+}
+
+var cursor = new Cursor();
+
+var MarkerSource = function (sourcexy,sizeRatio) {
+    this.Sprite = new Image();
+    this.Sprite.src = "images/sound.png";
+    this.Width = 256*sizeRatio;
+    this.Height = 256*sizeRatio;
+    // marker 
+    this.XPos = Xposcentre+(sourcexy[0]*PPM);
+    this.YPos = Yposcentre+(sourcexy[1]*PPM);
+}
+var markerSource1 = new MarkerSource(source1x,0.3);
+var markerSource2 = new MarkerSource(source2x,0.3);
+var markerSource3 = new MarkerSource(source3x,0.3);
+
+
+
+function draw() {
+	// draw at each frame
+    requestAnimationFrame(draw);
+    // Clear Canvas
+    canvas_context.fillStyle = "#777582";
+    canvas_context.fillRect(0, 0, canvas.width, canvas.height);
+    // Draw map
+    canvas_context.drawImage(mapSprite, 0, 0);
+    // Draw markers
+	// added - 
+	canvas_context.drawImage(markerSource1.Sprite, markerSource1.XPos, markerSource1.YPos, markerSource1.Width, markerSource1.Height);
+	canvas_context.drawImage(markerSource2.Sprite, markerSource2.XPos, markerSource2.YPos, markerSource2.Width, markerSource2.Height);
+	canvas_context.drawImage(markerSource3.Sprite, markerSource3.XPos, markerSource3.YPos, markerSource3.Width, markerSource3.Height);
+
+	if (alpha != null) {
+		canvas_context.save();
+	 	canvas_context.translate(cursor.XPos+cursor.Width/2 ,cursor.YPos+cursor.Height/2 );
+		canvas_context.rotate(alpha * Math.PI / 180);
+		canvas_context.drawImage(cursor.Sprite, -cursor.Width/2 , -cursor.Height/2 , cursor.Width, cursor.Height);
+		canvas_context.restore();
+	} else {
+		canvas_context.drawImage(cursor.Sprite, cursor.XPos, cursor.YPos, cursor.Width, cursor.Height);
+	}
+
+	//canvas_context.fillStyle="#FF0000";
+	//canvas_context.fillRect(canvas.width/2-25, canvas.height/2-25,50,50);
+    // run example specific draw callback
+    if (!(typeof(drawLocal)=='undefined')) { drawLocal();	}
+};
+
+draw();	
+	
+// define center of playground by clicking on button 
+function setCenterLocation() {
+    navigator.geolocation.getCurrentPosition(getPosition);
+    } 
+
+function getPosition(position) {
+	coords.lat = position.coords.latitude;
+    coords.lon = position.coords.longitude;
+	centerPosition= [coords.lat, coords.lon] ;
+	currentPosYX = calcPosition(currentPosition, centerPosition);
+	f();
+	
+}	
+
+
+$.holdReady( false ); // to force awaiting
+
+
+
+
+    </script>
+
+</body>
+</html>
