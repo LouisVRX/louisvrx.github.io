@@ -3,7 +3,7 @@ body {
     margin: 1em;
     padding: 0;
     color: #000;
-    background-color: rgb(220, 220, 220);
+    background-color: #bebbbb;
 }
 
 footer{
@@ -16,7 +16,7 @@ footer{
     padding: 0;
     color: #000;
     background-color: rgb(240, 240, 240);
-    width: 880px;
+    width:100%;
     float: center;
     border: 1px solid black;
     border-radius: 1%
